@@ -48,6 +48,6 @@
 <div id="weekSheet"><?php echo $this->weekSheet_display ?> </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        ts_ext_onload();
+        ws_ext_onload();
     });
 </script>

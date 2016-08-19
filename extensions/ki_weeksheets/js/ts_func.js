@@ -23,11 +23,11 @@
 /**
  * Called when the extension loaded. Do some initial stuff.
  */
-function ts_ext_onload() {
-	ts_ext_applyHoverIntent();
-	ts_ext_resize();
+function ws_ext_onload() {
+	ws_ext_applyHoverIntent();
+	ws_ext_resize();
 	$("#loader").hide();
-	lists_visible(true);
+	lisws_visible(true);
 }
 
 /**
@@ -35,7 +35,7 @@ function ts_ext_onload() {
  * @param value
  * @returns {string}
  */
-function ts_formatTime(value) {
+function ws_formatTime(value) {
 	var hours = prependZeroIfNeeded(value.getHours());
 	var minutes = prependZeroIfNeeded(value.getMinutes());
 	var seconds = prependZeroIfNeeded(value.getSeconds());
@@ -48,7 +48,7 @@ function ts_formatTime(value) {
  * @param {Date} value
  * @returns {string}
  */
-function ts_formatDate(value) {
+function ws_formatDate(value) {
 	var day = prependZeroIfNeeded(value.getDate());
 	var month = prependZeroIfNeeded(value.getMonth() + 1);
 	var year = value.getFullYear();
@@ -59,7 +59,7 @@ function ts_formatDate(value) {
 /**
  * Update the dimension variables to reflect new height and width.
  */
-function ts_ext_get_dimensions() {
+function ws_ext_get_dimensions() {
 	scroller_width = 17;
 	if (navigator.platform.substr(0, 3) == 'Mac') {
 		scroller_width = 16;
@@ -75,7 +75,7 @@ function ts_ext_get_dimensions() {
 /**
  * Hover a row if the mouse is over it for more than half a second.
  */
-function ts_ext_applyHoverIntent() {
+function ws_ext_applyHoverIntent() {
 	$('#weekSheet tr').hoverIntent({
 		sensitivity: 1,
 		interval: 500,
@@ -92,40 +92,40 @@ function ts_ext_applyHoverIntent() {
 /**
  * The window has been resized, we have to adjust to the new space.
  */
-function ts_ext_resize() {
-	ts_ext_set_tableWrapperWidths();
-	ts_ext_set_heightTop();
+function ws_ext_resize() {
+	ws_ext_set_tableWrapperWidths();
+	ws_ext_set_heightTop();
 }
 
 /**
  * Set width of table and faked table head.
  */
-function ts_ext_set_tableWrapperWidths() {
-	ts_ext_get_dimensions();
+function ws_ext_set_tableWrapperWidths() {
+	ws_ext_get_dimensions();
 	$("#weekSheet_head,#weekSheet").css("width",weekSheet_width);
-	ts_ext_set_TableWidths();
+	ws_ext_set_TableWidths();
 }
 
 /**
  * If the extension is being shrinked so the sublists are shown larger
  * adjust to that.
  */
-function ts_ext_set_heightTop() {
-	ts_ext_get_dimensions();
+function ws_ext_set_heightTop() {
+	ws_ext_get_dimensions();
 	if (!extensionShrinkMode) {
 		$("#weekSheet").css("height", weekSheet_height);
 	} else {
 		$("#weekSheet").css("height", "70px");
 	}
 
-	ts_ext_set_TableWidths();
+	ws_ext_set_TableWidths();
 }
 
 /**
  * Set the width of the table.
  */
-function ts_ext_set_TableWidths() {
-	ts_ext_get_dimensions();
+function ws_ext_set_TableWidths() {
+	ws_ext_get_dimensions();
 	// set table widths
 	($("#weekSheet").innerHeight()-$("#weekSheet table").outerHeight()>0)?scr=0:scr=scroller_width; // width of weekSheet table depending on scrollbar or not
 	$("#weekSheet table").css("width",weekSheet_width-scr);
@@ -141,20 +141,20 @@ function ts_ext_set_TableWidths() {
 }
 
 function weeksheet_extension_tab_changed() {
-	$('#display_total').html(ts_total);
+	$('#display_total').html(ws_total);
 	if (weeksheet_timeframe_changed_hook_flag) {
-		ts_ext_reload();
+		ws_ext_reload();
 		weeksheet_customers_changed_hook_flag = 0;
-		weeksheet_projects_changed_hook_flag = 0;
+		weeksheet_projecws_changed_hook_flag = 0;
 		weeksheet_activities_changed_hook_flag = 0;
 	}
 	if (weeksheet_customers_changed_hook_flag) {
 		weeksheet_extension_customers_changed();
-		weeksheet_projects_changed_hook_flag = 0;
+		weeksheet_projecws_changed_hook_flag = 0;
 		weeksheet_activities_changed_hook_flag = 0;
 	}
-	if (weeksheet_projects_changed_hook_flag) {
-		weeksheet_extension_projects_changed();
+	if (weeksheet_projecws_changed_hook_flag) {
+		weeksheet_extension_projecws_changed();
 	}
 	if (weeksheet_activities_changed_hook_flag) {
 		weeksheet_extension_activities_changed();
@@ -162,36 +162,36 @@ function weeksheet_extension_tab_changed() {
 
 	weeksheet_timeframe_changed_hook_flag = 0;
 	weeksheet_customers_changed_hook_flag = 0;
-	weeksheet_projects_changed_hook_flag = 0;
+	weeksheet_projecws_changed_hook_flag = 0;
 	weeksheet_activities_changed_hook_flag = 0;
 }
 
 function weeksheet_extension_timeframe_changed() {
 	if ($('.ki_weeksheet').css('display') == "block") {
-		ts_ext_reload();
+		ws_ext_reload();
 	} else {
 		weeksheet_timeframe_changed_hook_flag++;
 	}
 }
 function weeksheet_extension_customers_changed() {
 	if ($('.ki_weeksheet').css('display') == "block") {
-		ts_ext_reload();
+		ws_ext_reload();
 	} else {
 		weeksheet_customers_changed_hook_flag++;
 	}
 }
 
-function weeksheet_extension_projects_changed() {
+function weeksheet_extension_projecws_changed() {
 	if ($('.ki_weeksheet').css('display') == "block") {
-		ts_ext_reload();
+		ws_ext_reload();
 	} else {
-		weeksheet_projects_changed_hook_flag++;
+		weeksheet_projecws_changed_hook_flag++;
 	}
 }
 
 function weeksheet_extension_activities_changed() {
 	if ($('.ki_weeksheet').css('display') == "block") {
-		ts_ext_reload();
+		ws_ext_reload();
 	} else {
 		weeksheet_activities_changed_hook_flag++;
 	}
@@ -200,8 +200,8 @@ function weeksheet_extension_activities_changed() {
 /**
  * reloads weeksheet, customer, project and activity tables
  */
-function ts_ext_reload() {
-	$.post(ts_ext_path + "processor.php", {
+function ws_ext_reload() {
+	$.post(ws_ext_path + "processor.php", {
 		axAction: "reload_weekSheet",
 		axValue: filterUsers.join(":") + '|' + filterCustomers.join(":") + '|' + filterProjects.join(":") + '|' + filterActivities.join(":"),
 		id: 0,
@@ -210,8 +210,8 @@ function ts_ext_reload() {
 	}, function(data) {
 		$("#weekSheet").html(data);
 
-		ts_ext_set_TableWidths();
-		ts_ext_applyHoverIntent();
+		ws_ext_set_TableWidths();
+		ws_ext_applyHoverIntent();
 	});
 }
 
@@ -223,9 +223,9 @@ function ts_ext_reload() {
  * @param activity
  * @param weekSheetEntry
  */
-function ts_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntry) {
+function ws_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntry) {
 	var selected_activity = $('#add_edit_weekSheetEntry_activityID').val();
-	$.post(ts_ext_path + "processor.php", {
+	$.post(ws_ext_path + "processor.php", {
 		axAction: "reload_activities_options",
 		axValue: 0,
 		id: 0,
@@ -244,7 +244,7 @@ function ts_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntr
 				activity_id: activity,
 				weekSheetEntryID: weekSheetEntry
 			}, function (data) {
-				ts_ext_updateBudget(data);
+				ws_ext_updateBudget(data);
 			});
 		}
 	});
@@ -257,7 +257,7 @@ function ts_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntr
  * part of this activity. In other cases, we already took case on server side that the values are 0
  * @param data
  */
-function ts_ext_updateBudget(data) {
+function ws_ext_updateBudget(data) {
 	var budget = data['activityBudgets']['budget'];
 	// that is the case if we changed the project and no activity is selected
 	if (isNaN(budget)) {
@@ -308,7 +308,7 @@ function ts_ext_updateBudget(data) {
  * @param activity
  * @param id
  */
-function ts_ext_recordAgain(project,activity,id) {
+function ws_ext_recordAgain(project,activity,id) {
 	$('#weekSheetEntry' + id + '>td>a').blur();
 
 	if (currentRecording > -1) {
@@ -322,7 +322,7 @@ function ts_ext_recordAgain(project,activity,id) {
 	show_stopwatch();
 	$('#weekSheetEntry'+id+'>td>a').removeAttr('onclick');
 
-	$.post(ts_ext_path + "processor.php", {
+	$.post(ws_ext_path + "processor.php", {
 		axAction: "record", 
 		axValue: 0,
 		id: id
@@ -337,7 +337,7 @@ function ts_ext_recordAgain(project,activity,id) {
 		activityName = data.activityName;
 		currentRecording = data.currentRecording;
 
-		ts_ext_reload();
+		ws_ext_reload();
 		buzzer_preselect_project(project, projectName, customer, customerName, false);
 		buzzer_preselect_activity(activity, activityName, 0, 0, false);
 		$("#ticker_customer").html(customerName);
@@ -352,7 +352,7 @@ function ts_ext_recordAgain(project,activity,id) {
  * 
  * @param id
  */
-function ts_ext_stopRecord(id) {
+function ws_ext_stopRecord(id) {
 	ticktack_off();
 	show_selectors();
 	if (id) {
@@ -362,12 +362,12 @@ function ts_ext_stopRecord(id) {
 		$('#weekSheetEntry' + id + '>td>a').removeAttr('onclick');
 		$('#weekSheetEntry' + id + '>td').css("color", "#FFF");
 	}
-	$.post(ts_ext_path + "processor.php", {
+	$.post(ws_ext_path + "processor.php", {
 		axAction: "stop",
 		axValue: 0,
 		id: id
 	}, function (data) {
-		ts_ext_reload();
+		ws_ext_reload();
 	});
 }
 
@@ -388,13 +388,13 @@ function quickdelete(id) {
 	$('#weekSheetEntry' + id + '>td>a').removeAttr('onclick');
 	$('#weekSheetEntry' + id + '>td>a.quickdelete>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
 
-	$.post(ts_ext_path + "processor.php", {
+	$.post(ws_ext_path + "processor.php", {
 		axAction: "quickdelete",
 		axValue: 0,
 		id: id
 	}, function (result) {
 		if (result.errors.length == 0) {
-			ts_ext_reload();
+			ws_ext_reload();
 		} else {
 			var messages = [];
 			for (var index in result.errors) {
@@ -410,7 +410,7 @@ function quickdelete(id) {
  * @param id
  */
 function editRecord(id) {
-	floaterShow(ts_ext_path + "floaters.php", "add_edit_weekSheetEntry", 0, id, 650);
+	floaterShow(ws_ext_path + "floaters.php", "add_edit_weekSheetEntry", 0, id, 650);
 }
 
 /**
@@ -418,14 +418,14 @@ function editRecord(id) {
  * @param id
  */
 function editQuickNote(id) {
-	floaterShow(ts_ext_path + "floaters.php", "add_edit_weekSheetQuickNote", 0, id, 650);
+	floaterShow(ws_ext_path + "floaters.php", "add_edit_weekSheetQuickNote", 0, id, 650);
 }
 
 /**
  * refresh the rate with a new value, if this is a new entry
  */
 function getBestRates() {
-	$.getJSON(ts_ext_path + "processor.php", {
+	$.getJSON(ws_ext_path + "processor.php", {
 		axAction: "bestFittingRates",
 		axValue: 0,
 		project_id: $("#add_edit_weekSheetEntry_projectID").val(),
@@ -438,15 +438,15 @@ function getBestRates() {
 		if (data.hourlyRate == false) {
 			//TODO: why does Kimai do this? If we already set a rate
 			// we might want to keep it, not just reset it to empty..?
-			// $("#ts_ext_form_add_edit_weekSheetEntry #rate").val('');
+			// $("#ws_ext_form_add_edit_weekSheetEntry #rate").val('');
 		} else {
-			$("#ts_ext_form_add_edit_weekSheetEntry #rate").val(data.hourlyRate);
+			$("#ws_ext_form_add_edit_weekSheetEntry #rate").val(data.hourlyRate);
 		}
 
 		if (data.fixedRate == false) {
-			$("#ts_ext_form_add_edit_weekSheetEntry #fixedRate").val('');
+			$("#ws_ext_form_add_edit_weekSheetEntry #fixedRate").val('');
 		} else {
-			$("#ts_ext_form_add_edit_weekSheetEntry #fixedRate").val(data.fixedRate);
+			$("#ws_ext_form_add_edit_weekSheetEntry #fixedRate").val(data.fixedRate);
 		}
 	});
 }
@@ -477,7 +477,7 @@ function pasteNow(value) {
  * @param timeStr
  * @returns {Date}
  */
-function ts_getDateFromStrings(dateStr, timeStr) {
+function ws_getDateFromStrings(dateStr, timeStr) {
 	var result = new Date();
 	var dateArray = dateStr.split(/\./);
 	var timeArray = timeStr.split(/:|\./);
@@ -508,23 +508,23 @@ function ts_getDateFromStrings(dateStr, timeStr) {
  * Gets the begin Date, while editing a weeksheet record
  * @returns {Date}
  */
-function ts_getStartDate() {
-	return ts_getDateFromStrings($("#start_day").val(), $("#start_time").val());
+function ws_getStartDate() {
+	return ws_getDateFromStrings($("#start_day").val(), $("#start_time").val());
 }
 
 /**
  * Gets the end Date, while editing a weeksheet record
  * @returns {Date}
  */
-function ts_getEndDate() {
-	return ts_getDateFromStrings($("#end_day").val(), $("#end_time").val());
+function ws_getEndDate() {
+	return ws_getDateFromStrings($("#end_day").val(), $("#end_time").val());
 }
 
 /**
  * Change the end time field, based on the duration, while editing a weeksheet record
  */
-function ts_durationToTime() {
-	end = ts_getEndDate();
+function ws_durationToTime() {
+	end = ws_getEndDate();
 	durationArray = $("#duration").val().split(/:|\./);
 	if (end != null && durationArray.length > 0 && durationArray.length < 4) {
 		secs = durationArray[0] * 3600;
@@ -537,19 +537,19 @@ function ts_durationToTime() {
 		begin = new Date();
 		begin.setTime(end.getTime() - (secs * 1000));
 
-		$("#start_time").val(ts_formatTime(begin));
-		$("#end_time").val(ts_formatTime(end));
-		$("#start_day").val(ts_formatDate(begin));
-		$("#end_day").val(ts_formatDate(end));
+		$("#start_time").val(ws_formatTime(begin));
+		$("#end_time").val(ws_formatTime(end));
+		$("#start_day").val(ws_formatDate(begin));
+		$("#end_day").val(ws_formatDate(end));
 	}
 }
 
 /**
  * Change the duration field, based on the time, while editing a weeksheet record
  */
-function ts_timeToDuration() {
-	begin = ts_getStartDate();
-	end = ts_getEndDate();
+function ws_timeToDuration() {
+	begin = ws_getStartDate();
+	end = ws_getEndDate();
 	if (begin == null || end == null) {
 		$("#duration").val("");
 	} else {
@@ -574,7 +574,7 @@ function ts_timeToDuration() {
  * @param id
  * @returns {boolean}
  */
-function ts_comment(id) {
+function ws_comment(id) {
 	$('#c' + id).toggle();
 	return false;
 }

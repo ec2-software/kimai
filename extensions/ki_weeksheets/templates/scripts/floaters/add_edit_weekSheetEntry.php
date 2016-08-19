@@ -35,7 +35,7 @@
         </ul>
     </div>
 
-    <form id="ts_ext_form_add_edit_weekSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
+    <form id="ws_ext_form_add_edit_weekSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
     <input type="hidden" name="id" value="<?php echo $this->id?>" />
     <input type="hidden" name="axAction" value="add_edit_weekSheetEntry" />
 	<input type="hidden" id="stepMinutes" value="<?php echo $this->kga['conf']['roundMinutes']?>" />
@@ -53,7 +53,7 @@
                                 'class' => 'formfield',
                                 'style' => 'width:400px',
                                 'tabindex' => '1',
-                                'onChange' => "ts_ext_reload_activities($('#add_edit_weekSheetEntry_projectID').val(),undefined,$('#add_edit_weekSheetEntry_activityID').val(), $('input[name=\'id\']').val());"
+                                'onChange' => "ws_ext_reload_activities($('#add_edit_weekSheetEntry_projectID').val(),undefined,$('#add_edit_weekSheetEntry_activityID').val(), $('input[name=\'id\']').val());"
                             ), $this->projects); ?>
                             <br/>
                             <input type="text" style="width:395px;margin-top:3px" tabindex="2" size="10" name="filter" id="filter" onkeyup="filter_selects('add_edit_weekSheetEntry_projectID', this.value);"/>
@@ -82,24 +82,24 @@
                     <li>
                         <label for="start_day"><?php echo $this->kga['lang']['day'] ?>:</label>
                         <input id='start_day' type='text' name='start_day' value='<?php echo $this->escape($this->start_day) ?>' maxlength='10' size='10' tabindex='6'
-                               onChange="ts_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
+                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
                         -
                         <input id='end_day' type='text' name='end_day' value='<?php echo $this->escape($this->end_day) ?>' maxlength='10' size='10' tabindex='7'
-                               onChange="ts_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
+                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
                     </li>
                     <li>
                         <label for="start_time"><?php echo $this->kga['lang']['timelabel'] ?>:</label>
                         <input id='start_time' type='text' name='start_time'
                                value='<?php echo $this->escape($this->start_time) ?>' maxlength='8' size='8' tabindex='8'
-                               onChange="ts_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
+                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
                         -
                         <input id='end_time' type='text' name='end_time' value='<?php echo $this->escape($this->end_time) ?>' maxlength='8' size='8' tabindex='9'
-                               onChange="ts_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
-                        <a id="currentTime" href="#" onclick="pasteNow(); ts_timeToDuration(); $(this).blur(); return false;"><?php echo $this->kga['lang']['now'] ?></a>
+                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
+                        <a id="currentTime" href="#" onclick="pasteNow(); ws_timeToDuration(); $(this).blur(); return false;"><?php echo $this->kga['lang']['now'] ?></a>
                     </li>
                     <li>
                         <label for="duration"><?php echo $this->kga['lang']['durationlabel'] ?>:</label>
-                        <input id='duration' type='text' name='duration' value='' onChange="ts_durationToTime();" maxlength='8' size='8'
+                        <input id='duration' type='text' name='duration' value='' onChange="ws_durationToTime();" maxlength='8' size='8'
                                tabindex='10' <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();"<?php endif; ?> />
                     </li>
                 </ul>
@@ -271,7 +271,7 @@
                     weekSheetEntryID: $('input[name="id"]').val()
                 },
                 function (data) {
-                    ts_ext_updateBudget(data);
+                    ws_ext_updateBudget(data);
                 }
             );
         });
@@ -287,14 +287,14 @@
         $('#start_day').datepicker({
             onSelect: function (dateText, instance) {
                 $('#end_day').datepicker("option", "minDate", $('#start_day').datepicker("getDate"));
-                ts_timeToDuration();
+                ws_timeToDuration();
             }
         });
 
         $('#end_day').datepicker({
             onSelect: function (dateText, instance) {
                 $('#start_day').datepicker("option", "maxDate", $('#end_day').datepicker("getDate"));
-                ts_timeToDuration();
+                ws_timeToDuration();
             }
         });
 
@@ -369,12 +369,12 @@
         };
         <?php endif; ?>
 
-        $('#ts_ext_form_add_edit_weekSheetEntry').ajaxForm({
+        $('#ws_ext_form_add_edit_weekSheetEntry').ajaxForm({
             'beforeSubmit': function () {
                 clearFloaterErrorMessages();
-                if (!$('#start_day').val().match(ts_dayFormatExp) ||
-                    ( !$('#end_day').val().match(ts_dayFormatExp) && $('#end_day').val() != '') || !$('#start_time').val().match(ts_timeFormatExp) ||
-                    ( !$('#end_time').val().match(ts_timeFormatExp) && $('#end_time').val() != '')) {
+                if (!$('#start_day').val().match(ws_dayFormatExp) ||
+                    ( !$('#end_day').val().match(ws_dayFormatExp) && $('#end_day').val() != '') || !$('#start_time').val().match(ws_timeFormatExp) ||
+                    ( !$('#end_time').val().match(ws_timeFormatExp) && $('#end_time').val() != '')) {
                     alert("<?php echo $this->kga['lang']['TimeDateInputError']?>");
                     return false;
                 }
@@ -386,8 +386,8 @@
                 } // no need to validate timerange if end time is not set
 
                 // test if start day is before end day
-                var inDayMatches = $('#start_day').val().match(ts_dayFormatExp);
-                var outDayMatches = $('#end_day').val().match(ts_dayFormatExp);
+                var inDayMatches = $('#start_day').val().match(ws_dayFormatExp);
+                var outDayMatches = $('#end_day').val().match(ws_dayFormatExp);
                 for (var i = 3; i >= 1; i--) {
                     var inVal = inDayMatches[i];
                     var outVal = outDayMatches[i];
@@ -412,8 +412,8 @@
                 }
                 if (inDayMatches[0] == outDayMatches[0]) {
                     // test if start time is before end time if it's the same day
-                    var inTimeMatches = $('#start_time').val().match(ts_timeFormatExp);
-                    var outTimeMatches = $('#end_time').val().match(ts_timeFormatExp);
+                    var inTimeMatches = $('#start_time').val().match(ws_timeFormatExp);
+                    var outTimeMatches = $('#end_time').val().match(ws_timeFormatExp);
                     for (var i = 1; i <= 3; i++) {
                         var inVal = inTimeMatches[i];
                         var outVal = outTimeMatches[i];
@@ -450,40 +450,40 @@
                 var deleted = $('#erase').is(':checked');
 
 
-                if ($('#ts_ext_form_add_edit_weekSheetEntry').attr('submitting')) {
+                if ($('#ws_ext_form_add_edit_weekSheetEntry').attr('submitting')) {
                     return false;
                 }
                 else {
-                    $('#ts_ext_form_add_edit_weekSheetEntry').attr('submitting', true);
+                    $('#ws_ext_form_add_edit_weekSheetEntry').attr('submitting', true);
                     return true;
                 }
             },
             'success': function (result) {
-                $('#ts_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
+                $('#ws_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
                 for (var fieldName in result.errors) {
                     setFloaterErrorMessage(fieldName, result.errors[fieldName]);
                 }
 
                 if (result.errors.length == 0) {
                     floaterClose();
-                    ts_ext_reload();
+                    ws_ext_reload();
                 }
             },
 
             'error': function () {
-                $('#ts_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
+                $('#ws_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
             }
         });
         <?php if (isset($this->id)) { ?>
-        ts_ext_reload_activities(<?php echo $this->projectID?>, true);
+        ws_ext_reload_activities(<?php echo $this->projectID?>, true);
         <?php } else { ?>
         $("#add_edit_weekSheetEntry_projectID").val(selected_project);
         $("#add_edit_weekSheetEntry_activityID").val(selected_activity);
-        ts_ext_reload_activities(selected_project);
+        ws_ext_reload_activities(selected_project);
         <?php } ?>
         
-        ts_timeToDuration();
-        // ts_timeToDuration will set the value of duration. The first time, the value
+        ws_timeToDuration();
+        // ws_timeToDuration will set the value of duration. The first time, the value
         // will be set and the duration is added to the budgetUsed eventhough it shouldn't
         // so maually subtract the value again
         var durationArray = new Array();

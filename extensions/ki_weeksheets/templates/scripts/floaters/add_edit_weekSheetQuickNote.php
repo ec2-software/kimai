@@ -23,7 +23,7 @@
                 </a></li>
         </ul>
     </div>
-    <form id="ts_ext_form_add_edit_weekSheetQuickNote" action="../extensions/ki_weeksheets/processor.php" method="post">
+    <form id="ws_ext_form_add_edit_weekSheetQuickNote" action="../extensions/ki_weeksheets/processor.php" method="post">
         <input type="hidden" name="id" value="<?php echo $this->id; ?>"/>
         <input type="hidden" name="axAction" value="add_edit_weekSheetQuickNote"/>
         <input type="hidden" name="userID" value="<?php echo $this->kga['user']['userID']; ?>"/>
@@ -68,28 +68,28 @@
     $(document).ready(function () {
         $('#help').hide();
         $('#floater_innerwrap').tabs({ selected: 0 });
-        var $ts_ext_form_add_edit_weekSheetQuickNote = $('#ts_ext_form_add_edit_weekSheetQuickNote');
-        $ts_ext_form_add_edit_weekSheetQuickNote.ajaxForm({
+        var $ws_ext_form_add_edit_weekSheetQuickNote = $('#ws_ext_form_add_edit_weekSheetQuickNote');
+        $ws_ext_form_add_edit_weekSheetQuickNote.ajaxForm({
             'beforeSubmit': function () {
                 clearFloaterErrorMessages();
-                if ($ts_ext_form_add_edit_weekSheetQuickNote.attr('submitting')) {
+                if ($ws_ext_form_add_edit_weekSheetQuickNote.attr('submitting')) {
                     return false;
                 } else {
-                    $ts_ext_form_add_edit_weekSheetQuickNote.attr('submitting', true);
+                    $ws_ext_form_add_edit_weekSheetQuickNote.attr('submitting', true);
                     return true;
                 }
             }, 'success': function (result) {
-                $ts_ext_form_add_edit_weekSheetQuickNote.removeAttr('submitting');
+                $ws_ext_form_add_edit_weekSheetQuickNote.removeAttr('submitting');
                 for (var fieldName in result.errors) {
                     setFloaterErrorMessage(fieldName, result.errors[fieldName]);
                 }
                 if (result.errors.length == 0) {
                     floaterClose();
-                    ts_ext_reload();
+                    ws_ext_reload();
                 }
             },
             'error': function () {
-                $ts_ext_form_add_edit_weekSheetQuickNote.removeAttr('submitting');
+                $ws_ext_form_add_edit_weekSheetQuickNote.removeAttr('submitting');
             }
         });
     });

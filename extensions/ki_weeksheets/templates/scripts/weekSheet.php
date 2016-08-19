@@ -32,7 +32,7 @@ if ($this->weekSheetEntries)
     $day_buffer     = 0; // last day entry
     $time_buffer    = 0; // last time entry
     $end_buffer     = 0; // last time entry
-    $ts_buffer      = 0; // current time entry
+    $ws_buffer      = 0; // current time entry
 
     foreach ($this->weekSheetEntries as $rowIndex => $row)
     {
@@ -47,7 +47,7 @@ if ($this->weekSheetEntries)
 
         $start          = strftime("%d",$row['start']);
         $end            = (isset($row['end']) && $row['end']) ? $row['end'] : 0;
-        $ts_buffer      = strftime("%H%M",$end);
+        $ws_buffer      = strftime("%H%M",$end);
 
         $tdClass = "";
         if ($this->showOverlapLines && $end > $time_buffer) {
@@ -78,14 +78,14 @@ if ($this->weekSheetEntries)
             <?php if ($row['end']): // Stop oder Record Button? ?>
 
             <?php if ($this->kga['show_RecordAgain']): ?>
-              <a onclick="ts_ext_recordAgain(<?php echo $row['projectID']?>,<?php echo $row['activityID']?>,<?php echo $row['timeEntryID']?>); return false;"
+              <a onclick="ws_ext_recordAgain(<?php echo $row['projectID']?>,<?php echo $row['activityID']?>,<?php echo $row['timeEntryID']?>); return false;"
                  href ="#" class="recordAgain"><img src="<?php echo $this->skin('grfx/button_recordthis.gif'); ?>"
                  width='13' height='13' alt='<?php echo $this->kga['lang']['recordAgain']?>' title='<?php echo $this->kga['lang']['recordAgain']?> (ID:<?php echo $row['timeEntryID']?>)' border='0' /></a>
             <?php endif; ?>
 
         <?php else: ?>
 
-            <a href ='#' class='stop' onclick="ts_ext_stopRecord(<?php echo $row['timeEntryID']?>); return false;"><img
+            <a href ='#' class='stop' onclick="ws_ext_stopRecord(<?php echo $row['timeEntryID']?>); return false;"><img
                     src="<?php echo $this->skin('grfx/button_stopthis.gif'); ?>" width='13'
                     height='13' alt='<?php echo $this->kga['lang']['stop']?>' title='<?php echo $this->kga['lang']['stop']?> (ID:<?php echo $row['timeEntryID']?>)' border='0' /></a>
 
@@ -184,11 +184,11 @@ if ($this->weekSheetEntries)
 
                 <?php if ($row['comment']): ?>
                     <?php if ($row['commentType'] == '0'): ?>
-                        <a href="#" onclick="ts_comment(<?php echo $row['timeEntryID']?>); $(this).blur(); return false;"><img src="<?php echo $this->skin('grfx/blase.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($row['comment'])?>' border="0" /></a>
+                        <a href="#" onclick="ws_comment(<?php echo $row['timeEntryID']?>); $(this).blur(); return false;"><img src="<?php echo $this->skin('grfx/blase.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($row['comment'])?>' border="0" /></a>
                     <?php elseif ($row['commentType'] == '1'): ?>
-                        <a href="#" onclick="ts_comment(<?php echo $row['timeEntryID']?>); $(this).blur(); return false;"><img src="<?php echo $this->skin('grfx/blase_sys.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($row['comment'])?>' border="0" /></a>
+                        <a href="#" onclick="ws_comment(<?php echo $row['timeEntryID']?>); $(this).blur(); return false;"><img src="<?php echo $this->skin('grfx/blase_sys.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($row['comment'])?>' border="0" /></a>
                     <?php elseif ($row['commentType'] == '2'): ?>
-                        <a href="#" onclick="ts_comment(<?php echo $row['timeEntryID']?>); $(this).blur(); return false;"><img src="<?php echo $this->skin('grfx/blase_caution.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($row['comment'])?>' border="0" /></a>
+                        <a href="#" onclick="ws_comment(<?php echo $row['timeEntryID']?>); $(this).blur(); return false;"><img src="<?php echo $this->skin('grfx/blase_caution.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($row['comment'])?>' border="0" /></a>
                     <?php endif; ?>
                 <?php endif; ?>
             </td>
@@ -240,14 +240,14 @@ else
 ?>
 
 <script type="text/javascript"> 
-    ts_user_annotations = <?php echo json_encode($this->user_annotations); ?>;
-    ts_customer_annotations = <?php echo json_encode($this->customer_annotations) ?>;
-    ts_project_annotations = <?php echo json_encode($this->project_annotations) ?>;
-    ts_activity_annotations = <?php echo json_encode($this->activity_annotations) ?>;
-    ts_total = '<?php echo $this->total?>';
+    ws_user_annotations = <?php echo json_encode($this->user_annotations); ?>;
+    ws_customer_annotations = <?php echo json_encode($this->customer_annotations) ?>;
+    ws_project_annotations = <?php echo json_encode($this->project_annotations) ?>;
+    ws_activity_annotations = <?php echo json_encode($this->activity_annotations) ?>;
+    ws_total = '<?php echo $this->total?>';
     
-    lists_update_annotations(parseInt($('#gui div.ki_weeksheets').attr('id').substring(7)),ts_user_annotations,ts_customer_annotations,ts_project_annotations,ts_activity_annotations);
-    $('#display_total').html(ts_total);
+    lisws_update_annotations(parseInt($('#gui div.ki_weeksheets').attr('id').substring(7)),ws_user_annotations,ws_customer_annotations,ws_project_annotations,ws_activity_annotations);
+    $('#display_total').html(ws_total);
     
   <?php if ($this->latest_running_entry == null): ?>
     updateRecordStatus(false);
