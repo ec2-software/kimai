@@ -90,7 +90,7 @@ switch ($axAction) {
     case 'record':
         $response = array();
 
-        $weekSheetEntry = $database->weekSheet_get_data($id);
+        $weekSheetEntry = $database->timeSheet_get_data($id);
 
         $weekSheetEntry['start'] = time();
         $weekSheetEntry['end'] = 0;
@@ -133,7 +133,7 @@ switch ($axAction) {
     case 'stop':
         $errors = array();
 
-        $data = $database->weekSheet_get_data($id);
+        $data = $database->timeSheet_get_data($id);
 
         weeksheetAccessAllowed($data, 'edit', $errors);
 
@@ -151,7 +151,7 @@ switch ($axAction) {
     case 'edit_running':
         $errors = array();
 
-        $data = $database->weekSheet_get_data($id);
+        $data = $database->timeSheet_get_data($id);
 
         weeksheetAccessAllowed($data, 'edit', $errors);
 
@@ -174,7 +174,7 @@ switch ($axAction) {
     case 'quickdelete':
         $errors = array();
 
-        $data = $database->weekSheet_get_data($id);
+        $data = $database->timeSheet_get_data($id);
 
         weeksheetAccessAllowed($data, 'delete', $errors);
 
@@ -222,7 +222,7 @@ switch ($axAction) {
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
-          $weekSheetEntry = $database->weekSheet_get_data($_REQUEST['weekSheetEntryID']);
+          $weekSheetEntry = $database->timeSheet_get_data($_REQUEST['weekSheetEntryID']);
           // we subtract the used data in case the activity is the same as in the db, otherwise
           // it would get counted twice. For all aother cases, just set the values to 0
           // so we don't subtract too much
@@ -371,7 +371,7 @@ switch ($axAction) {
         if (isset($kga['customer']))
           $filterCustomers = array($kga['customer']['customerID']);
 
-        $weekSheetEntries = $database->get_weekSheet($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities, 1);
+        $weekSheetEntries = $database->get_timeSheet($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities, 1);
         if (count($weekSheetEntries) > 0) {
             $view->assign('weekSheetEntries', $weekSheetEntries);
         } else {
@@ -427,7 +427,7 @@ switch ($axAction) {
         $action = 'delete';
 
       if ($id) {
-        $data = $database->weekSheet_get_data($id);
+        $data = $database->timeSheet_get_data($id);
 
         // check if editing or deleting with the old values would be allowed
         if (!weeksheetAccessAllowed($data, $action, $errors)) {
@@ -580,7 +580,7 @@ switch ($axAction) {
 
         if ($id) {
             $action = 'edit';
-            $data = $database->weekSheet_get_data($id);
+            $data = $database->timeSheet_get_data($id);
 
             // check if editing or deleting with the old values would be allowed
             if (!weeksheetAccessAllowed($data, $action, $errors)) {

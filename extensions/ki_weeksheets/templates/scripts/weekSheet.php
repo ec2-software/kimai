@@ -246,7 +246,7 @@ else
     ts_activity_annotations = <?php echo json_encode($this->activity_annotations) ?>;
     ts_total = '<?php echo $this->total?>';
     
-    lists_update_annotations(parseInt($('#gui div.ki_weeksheet').attr('id').substring(7)),ts_user_annotations,ts_customer_annotations,ts_project_annotations,ts_activity_annotations);
+    lists_update_annotations(parseInt($('#gui div.ki_weeksheets').attr('id').substring(7)),ts_user_annotations,ts_customer_annotations,ts_project_annotations,ts_activity_annotations);
     $('#display_total').html(ts_total);
     
   <?php if ($this->latest_running_entry == null): ?>

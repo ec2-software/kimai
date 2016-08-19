@@ -36,7 +36,7 @@ switch ($axAction) {
 
     // edit record
     if ($id) {
-        $weekSheetEntry = $database->weekSheet_get_data($id);
+        $weekSheetEntry = $database->timeSheet_get_data($id);
         $view->assign('id', $id);
         $view->assign('location', $weekSheetEntry['location']);
 
@@ -142,7 +142,7 @@ switch ($axAction) {
         $view->assign('userID', $kga['user']['userID']);
 
         if ($kga['user']['lastRecord'] != 0 && $kga['conf']['roundTimesheetEntries'] != '') {
-          $weekSheetData = $database->weekSheet_get_data($kga['user']['lastRecord']);
+          $weekSheetData = $database->timeSheet_get_data($kga['user']['lastRecord']);
           $minutes = date('i');
           if ($kga['conf']['roundMinutes'] < 60) {
             if ($kga['conf']['roundMinutes'] <= 0) {
@@ -224,7 +224,7 @@ switch ($axAction) {
         $view->assign('activities', makeSelectBox("activity", $kga['user']['groups']));
 
         if ($id) {
-            $weekSheetEntry = $database->weekSheet_get_data($id);
+            $weekSheetEntry = $database->timeSheet_get_data($id);
             $view->assign('id', $id);
             $view->assign('location', $weekSheetEntry['location']);
 

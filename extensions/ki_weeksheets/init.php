@@ -58,10 +58,10 @@ $view->assign('total', $total);
 
 // Get the array of weeksheet entries.
 if (isset($kga['customer'])) {
-  $weekSheetEntries = $database->get_weekSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
+  $weekSheetEntries = $database->get_timeSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
   $view->assign('latest_running_entry', null);
 } else {
-  $weekSheetEntries = $database->get_weekSheet($in, $out, array($kga['user']['userID']), null, null, 1);
+  $weekSheetEntries = $database->get_timeSheet($in, $out, array($kga['user']['userID']), null, null, 1);
   $view->assign('latest_running_entry', $database->get_latest_running_entry());
 }
 
