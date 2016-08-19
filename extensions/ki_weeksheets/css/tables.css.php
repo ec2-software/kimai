@@ -8,35 +8,35 @@
 	$schraff2 = "../../../skins/standard/grfx/schraff2.gif";
 ?>
 
-div.ki_timesheet table {
+div.ki_weeksheet table {
     border-collapse: collapse;
     font-size: 11px;
     color: #363636;
     border-bottom:1px solid #888;
 }
-div.ki_timesheet table a.preselect_lnk {
+div.ki_weeksheet table a.preselect_lnk {
     color: #363636;
     text-decoration:none;
     border-bottom:1px dotted #bbb;
 }
 
-div.ki_timesheet table a:hover {
+div.ki_weeksheet table a:hover {
     color: #0F9E00;
     border-bottom:none;
 }
 
-div.ki_timesheet table thead {
+div.ki_weeksheet table thead {
     height:25px;
     text-align:left;
     color:#FFF;
 }
 
-div.ki_timesheet table thead th {
+div.ki_weeksheet table thead th {
     background-image: url('<?php echo $table_header; ?>');
 }
 
-div.ki_timesheet tr.even td,
-div.ki_timesheet tr.odd td
+div.ki_weeksheet tr.even td,
+div.ki_weeksheet tr.odd td
 {
     border-bottom: none;
     border-left: none;
@@ -46,17 +46,17 @@ div.ki_timesheet tr.odd td
 }
 #timeSheet_head td {padding: 3px 4px 4px 6px;}
 
-div.ki_timesheet tr.hover td {
+div.ki_weeksheet tr.hover td {
     background: #FFC !important;
 /*    border-top: 1px solid #666 !important;
     border-bottom: 1px solid #666 !important;*/
 }
 
-div.ki_timesheet tr.even td {
+div.ki_weeksheet tr.even td {
     background: #FFF;
 }
 
-div.ki_timesheet tr.odd td {
+div.ki_weeksheet tr.odd td {
     background: #EEE;
 }
 
@@ -76,16 +76,16 @@ div#timeSheetTable tr.active td.time {
     background: #F00;
 }
 
-div.ki_timesheet tr td.option,
-div.ki_timesheet tr td.date,
-div.ki_timesheet tr td.from,
-div.ki_timesheet tr td.to,
-div.ki_timesheet tr td.time,
-div.ki_timesheet tr td.wage {
+div.ki_weeksheet tr td.option,
+div.ki_weeksheet tr td.date,
+div.ki_weeksheet tr td.from,
+div.ki_weeksheet tr td.to,
+div.ki_weeksheet tr td.time,
+div.ki_weeksheet tr td.wage {
     text-align:center;
 }
 
-div.ki_timesheet>div#timeSheet>div#timeSheetTable>table>tbody>tr>td.username {
+div.ki_weeksheet>div#timeSheet>div#timeSheetTable>table>tbody>tr>td.username {
     border-right: none;
 }
 

@@ -35,7 +35,7 @@
         </ul>
     </div>
 
-    <form id="ts_ext_form_add_edit_timeSheetEntry" action="../extensions/ki_timesheets/processor.php" method="post">
+    <form id="ts_ext_form_add_edit_timeSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
     <input type="hidden" name="id" value="<?php echo $this->id?>" />
     <input type="hidden" name="axAction" value="add_edit_timeSheetEntry" />
 	<input type="hidden" id="stepMinutes" value="<?php echo $this->kga['conf']['roundMinutes']?>" />
@@ -264,7 +264,7 @@
         });
 
         $('#add_edit_timeSheetEntry_activityID').change(function () {
-            $.getJSON("../extensions/ki_timesheets/processor.php", {
+            $.getJSON("../extensions/ki_weeksheets/processor.php", {
                     axAction: "budgets",
                     project_id: $("#add_edit_timeSheetEntry_projectID").val(),
                     activity_id: $("#add_edit_timeSheetEntry_activityID").val(),
@@ -311,7 +311,7 @@
         $("#rate").autocomplete({
             width: "200px",
             source: function (req, add) {
-                $.getJSON("../extensions/ki_timesheets/processor.php", {
+                $.getJSON("../extensions/ki_weeksheets/processor.php", {
                         axAction: "allFittingRates",
                         project: $("#add_edit_timeSheetEntry_projectID").val(),
                         activity: $("#add_edit_timeSheetEntry_activityID").val()
@@ -343,7 +343,7 @@
         $("#fixedRate").autocomplete({
             width: "200px",
             source: function (req, add) {
-                $.getJSON("../extensions/ki_timesheets/processor.php", {
+                $.getJSON("../extensions/ki_weeksheets/processor.php", {
                         axAction: "allFittingFixedRates",
                         project: $("#add_edit_timeSheetEntry_projectID").val(),
                         activity: $("#add_edit_timeSheetEntry_activityID").val()

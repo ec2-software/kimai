@@ -56,7 +56,7 @@ else
   $total = Kimai_Format::formatDuration($database->get_duration($in, $out, array($kga['user']['userID']), null, null));
 $view->assign('total', $total);
 
-// Get the array of timesheet entries.
+// Get the array of weeksheet entries.
 if (isset($kga['customer'])) {
   $timeSheetEntries = $database->get_timeSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
   $view->assign('latest_running_entry', null);
@@ -113,7 +113,7 @@ if (isset($kga['user'])) {
     $view->assign('showTrackingNumber', $database->user_get_preference('ui.showTrackingNumber') != 0);
 }
 
-$view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'));
+$view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'));
 
 $view->assign('timeSheet_display', $view->render("timeSheet.php"));
 

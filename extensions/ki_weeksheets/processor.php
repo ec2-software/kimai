@@ -26,7 +26,7 @@ $isCoreProcessor = 0;
 $dir_templates = "templates/";
 require("../../includes/kspi.php");
 
-function timesheetAccessAllowed($entry, $action, &$errors) {
+function weeksheetAccessAllowed($entry, $action, &$errors) {
   global $database, $kga;
 
   if (!isset($kga['user'])) {
@@ -44,7 +44,7 @@ function timesheetAccessAllowed($entry, $action, &$errors) {
   $groups = $database->getGroupMemberships($entry['userID']);
 
   if ($entry['userID'] == $kga['user']['userID']) {
-    $permissionName = 'ki_timesheets-ownEntry-' . $action;
+    $permissionName = 'ki_weeksheets-ownEntry-' . $action;
     if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
       return true;
     } else {
@@ -57,7 +57,7 @@ function timesheetAccessAllowed($entry, $action, &$errors) {
   $assignedOwnGroups = array_intersect($groups, $database->getGroupMemberships($kga['user']['userID']));
 
   if (count($assignedOwnGroups) > 0) {
-    $permissionName = 'ki_timesheets-otherEntry-ownGroup-' . $action;
+    $permissionName = 'ki_weeksheets-otherEntry-ownGroup-' . $action;
     if ($database->checkMembershipPermission($kga['user']['userID'], $assignedOwnGroups, $permissionName)) {
       return true;
     } else {
@@ -68,7 +68,7 @@ function timesheetAccessAllowed($entry, $action, &$errors) {
 
   }
 
-  $permissionName = 'ki_timesheets-otherEntry-otherGroup-' . $action;
+  $permissionName = 'ki_weeksheets-otherEntry-otherGroup-' . $action;
   if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
     return true;
   } else {
@@ -98,7 +98,7 @@ switch ($axAction) {
         $timeSheetEntry['cleared'] = 0;
 
         $errors = array();
-        timesheetAccessAllowed($timeSheetEntry, 'edit', $errors);
+        weeksheetAccessAllowed($timeSheetEntry, 'edit', $errors);
         $response['errors'] = $errors;
 
         if (count($errors) == 0) {
@@ -135,7 +135,7 @@ switch ($axAction) {
 
         $data = $database->timeSheet_get_data($id);
 
-        timesheetAccessAllowed($data, 'edit', $errors);
+        weeksheetAccessAllowed($data, 'edit', $errors);
 
         if (count($errors) == 0)
           $database->stopRecorder($id);
@@ -153,7 +153,7 @@ switch ($axAction) {
 
         $data = $database->timeSheet_get_data($id);
 
-        timesheetAccessAllowed($data, 'edit', $errors);
+        weeksheetAccessAllowed($data, 'edit', $errors);
 
         if (count($errors) == 0) {
           if (isset($_REQUEST['project']))
@@ -169,14 +169,14 @@ switch ($axAction) {
     break;
 
     // =========================================
-    // = Erase timesheet entry via quickdelete =
+    // = Erase weeksheet entry via quickdelete =
     // =========================================
     case 'quickdelete':
         $errors = array();
 
         $data = $database->timeSheet_get_data($id);
 
-        timesheetAccessAllowed($data, 'delete', $errors);
+        weeksheetAccessAllowed($data, 'delete', $errors);
 
         if (count($errors) == 0) {
           $database->timeEntry_delete($id);
@@ -196,7 +196,7 @@ switch ($axAction) {
         if (!isset($kga['user']))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'))
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
@@ -218,7 +218,7 @@ switch ($axAction) {
         if (!isset($kga['user']))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'))
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
@@ -249,7 +249,7 @@ switch ($axAction) {
         if (!isset($kga['user']))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'))
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
@@ -288,7 +288,7 @@ switch ($axAction) {
           $data['errors'][] = $kga['lang']['editLimitError'];
         }
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates')) {
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates')) {
           $data['errors'][] = $kga['lang']['editLimitError'];
         }
 
@@ -337,7 +337,7 @@ switch ($axAction) {
     break;
 
     // =============================================
-    // = Load timesheet data from DB and return it =
+    // = Load weeksheet data from DB and return it =
     // =============================================
     case 'reload_timeSheet':
         $filters = explode('|', $axValue);
@@ -407,7 +407,7 @@ switch ($axAction) {
             $view->assign('showTrackingNumber', $database->user_get_preference('ui.showTrackingNumber') != 0);
         }
 
-        $view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'));
+        $view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'));
 
         echo $view->render("timeSheet.php");
     break;
@@ -430,7 +430,7 @@ switch ($axAction) {
         $data = $database->timeSheet_get_data($id);
 
         // check if editing or deleting with the old values would be allowed
-        if (!timesheetAccessAllowed($data, $action, $errors)) {
+        if (!weeksheetAccessAllowed($data, $action, $errors)) {
           echo json_encode(array('errors'=>$errors));
           break;
         }
@@ -451,7 +451,7 @@ switch ($axAction) {
       $data['description']    = $_REQUEST['description'];
       $data['comment']        = $_REQUEST['comment'];
       $data['commentType']    = $_REQUEST['commentType'];
-      if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-editRates')) {
+      if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-editRates')) {
         $data['rate']         = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['rate']);
         $data['fixedRate']      = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['fixedRate']);
       } else if (!$id) {
@@ -532,7 +532,7 @@ switch ($axAction) {
 
       if ($id) { // TIME RIGHT - NEW OR EDIT ?
 
-          if (!timesheetAccessAllowed($data, $action, $errors)) {
+          if (!weeksheetAccessAllowed($data, $action, $errors)) {
             echo json_encode(array('errors'=>$errors));
             break;
           }
@@ -550,7 +550,7 @@ switch ($axAction) {
         foreach ($_REQUEST['userID'] as $userID) {
           $data['userID'] = $userID;
 
-          if (!timesheetAccessAllowed($data, $action, $errors)) {
+          if (!weeksheetAccessAllowed($data, $action, $errors)) {
             echo json_encode(array('errors'=>$errors));
             $database->transaction_rollback();
             break 2;
@@ -583,7 +583,7 @@ switch ($axAction) {
             $data = $database->timeSheet_get_data($id);
 
             // check if editing or deleting with the old values would be allowed
-            if (!timesheetAccessAllowed($data, $action, $errors)) {
+            if (!weeksheetAccessAllowed($data, $action, $errors)) {
                 echo json_encode(array('errors' => $errors));
                 break;
             }
@@ -595,7 +595,7 @@ switch ($axAction) {
         $data['commentType'] = $_REQUEST['commentType'];
         $data['userID'] = $_REQUEST['userID'];
 
-        if (!timesheetAccessAllowed($data, $action, $errors)) {
+        if (!weeksheetAccessAllowed($data, $action, $errors)) {
             echo json_encode(array('errors' => $errors));
             break;
         }

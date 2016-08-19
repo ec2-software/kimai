@@ -246,7 +246,7 @@ else
     ts_activity_annotations = <?php echo json_encode($this->activity_annotations) ?>;
     ts_total = '<?php echo $this->total?>';
     
-    lists_update_annotations(parseInt($('#gui div.ki_timesheet').attr('id').substring(7)),ts_user_annotations,ts_customer_annotations,ts_project_annotations,ts_activity_annotations);
+    lists_update_annotations(parseInt($('#gui div.ki_weeksheet').attr('id').substring(7)),ts_user_annotations,ts_customer_annotations,ts_project_annotations,ts_activity_annotations);
     $('#display_total').html(ts_total);
     
   <?php if ($this->latest_running_entry == null): ?>
@@ -259,12 +259,12 @@ else
                              <?php echo $this->latest_running_entry['activityID']?>,'<?php echo $this->jsEscape($this->latest_running_entry['activityName'])?>');
   <?php endif; ?>
 
-    function timesheet_hide_column(name) {
+    function weeksheet_hide_column(name) {
         $('.'+name).hide();
     }
 
     <?php if (!$this->showTrackingNumber) { ?>
-        timesheet_hide_column('trackingnumber');
+        weeksheet_hide_column('trackingnumber');
     <?php } ?>
 
 </script>

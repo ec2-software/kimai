@@ -23,7 +23,7 @@
                 </a></li>
         </ul>
     </div>
-    <form id="ts_ext_form_add_edit_timeSheetQuickNote" action="../extensions/ki_timesheets/processor.php" method="post">
+    <form id="ts_ext_form_add_edit_timeSheetQuickNote" action="../extensions/ki_weeksheets/processor.php" method="post">
         <input type="hidden" name="id" value="<?php echo $this->id; ?>"/>
         <input type="hidden" name="axAction" value="add_edit_timeSheetQuickNote"/>
         <input type="hidden" name="userID" value="<?php echo $this->kga['user']['userID']; ?>"/>

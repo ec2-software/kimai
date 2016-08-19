@@ -17,7 +17,7 @@
  */
 
 /**
- * Javascript functions used in the timesheet extension.
+ * Javascript functions used in the weeksheet extension.
  */
 
 /**
@@ -167,14 +167,14 @@ function weeksheet_extension_tab_changed() {
 }
 
 function weeksheet_extension_timeframe_changed() {
-	if ($('.ki_timesheet').css('display') == "block") {
+	if ($('.ki_weeksheet').css('display') == "block") {
 		ts_ext_reload();
 	} else {
 		weeksheet_timeframe_changed_hook_flag++;
 	}
 }
 function weeksheet_extension_customers_changed() {
-	if ($('.ki_timesheet').css('display') == "block") {
+	if ($('.ki_weeksheet').css('display') == "block") {
 		ts_ext_reload();
 	} else {
 		weeksheet_customers_changed_hook_flag++;
@@ -182,7 +182,7 @@ function weeksheet_extension_customers_changed() {
 }
 
 function weeksheet_extension_projects_changed() {
-	if ($('.ki_timesheet').css('display') == "block") {
+	if ($('.ki_weeksheet').css('display') == "block") {
 		ts_ext_reload();
 	} else {
 		weeksheet_projects_changed_hook_flag++;
@@ -190,7 +190,7 @@ function weeksheet_extension_projects_changed() {
 }
 
 function weeksheet_extension_activities_changed() {
-	if ($('.ki_timesheet').css('display') == "block") {
+	if ($('.ki_weeksheet').css('display') == "block") {
 		ts_ext_reload();
 	} else {
 		weeksheet_activities_changed_hook_flag++;
@@ -198,7 +198,7 @@ function weeksheet_extension_activities_changed() {
 }
 
 /**
- * reloads timesheet, customer, project and activity tables
+ * reloads weeksheet, customer, project and activity tables
  */
 function ts_ext_reload() {
 	$.post(ts_ext_path + "processor.php", {
@@ -216,7 +216,7 @@ function ts_ext_reload() {
 }
 
 /**
- * reloads timesheet, customer, project and activity tables
+ * reloads weeksheet, customer, project and activity tables
  * 
  * @param project
  * @param noUpdateRate
@@ -238,7 +238,7 @@ function ts_ext_reload_activities(project, noUpdateRate, activity, timeSheetEntr
 			getBestRates();
 		}
 		if (activity > 0) {
-			$.getJSON("../extensions/ki_timesheets/processor.php", {
+			$.getJSON("../extensions/ki_weeksheets/processor.php", {
 				axAction: "budgets",
 				project_id: project,
 				activity_id: activity,
@@ -301,7 +301,7 @@ function ts_ext_updateBudget(data) {
 }
 
 /**
- * this function is attached to the little green arrows in front of each timesheet record
+ * this function is attached to the little green arrows in front of each weeksheet record
  * and starts recording that activity anew
  * 
  * @param project
@@ -347,7 +347,7 @@ function ts_ext_recordAgain(project,activity,id) {
 }
 
 /**
- * this function is attached to the little green arrows in front of each timesheet record
+ * this function is attached to the little green arrows in front of each weeksheet record
  * and starts recording that activity anew
  * 
  * @param id
@@ -372,7 +372,7 @@ function ts_ext_stopRecord(id) {
 }
 
 /**
- * delete a timesheet record immediately
+ * delete a weeksheet record immediately
  * @param id
  */
 function quickdelete(id) {
@@ -406,7 +406,7 @@ function quickdelete(id) {
 }
 
 /**
- * edit a timesheet record
+ * edit a weeksheet record
  * @param id
  */
 function editRecord(id) {
@@ -414,7 +414,7 @@ function editRecord(id) {
 }
 
 /**
- * edit a timesheet quick note
+ * edit a weeksheet quick note
  * @param id
  */
 function editQuickNote(id) {
@@ -453,7 +453,7 @@ function getBestRates() {
 
 /**
  * pastes the current date and time in the outPoint field of the
- * change dialog for timesheet entries
+ * change dialog for weeksheet entries
  *
  * $view->pasteValue = date("d.m.Y - H:i:s",$kga['now']);
  *
@@ -505,7 +505,7 @@ function ts_getDateFromStrings(dateStr, timeStr) {
 }
 
 /**
- * Gets the begin Date, while editing a timesheet record
+ * Gets the begin Date, while editing a weeksheet record
  * @returns {Date}
  */
 function ts_getStartDate() {
@@ -513,7 +513,7 @@ function ts_getStartDate() {
 }
 
 /**
- * Gets the end Date, while editing a timesheet record
+ * Gets the end Date, while editing a weeksheet record
  * @returns {Date}
  */
 function ts_getEndDate() {
@@ -521,7 +521,7 @@ function ts_getEndDate() {
 }
 
 /**
- * Change the end time field, based on the duration, while editing a timesheet record
+ * Change the end time field, based on the duration, while editing a weeksheet record
  */
 function ts_durationToTime() {
 	end = ts_getEndDate();
@@ -545,7 +545,7 @@ function ts_durationToTime() {
 }
 
 /**
- * Change the duration field, based on the time, while editing a timesheet record
+ * Change the duration field, based on the time, while editing a weeksheet record
  */
 function ts_timeToDuration() {
 	begin = ts_getStartDate();
@@ -570,7 +570,7 @@ function ts_timeToDuration() {
 }
 
 /**
- * shows comment line for timesheet entry
+ * shows comment line for weeksheet entry
  * @param id
  * @returns {boolean}
  */
