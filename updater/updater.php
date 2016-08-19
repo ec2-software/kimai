@@ -1115,6 +1115,12 @@ if ((int)$revisionDB < 1387) {
     exec_query("INSERT INTO `${p}configuration` (`option`,`value`) VALUES('date_format_3','d.m.Y')");
 }
 
+if ((int)$revisionDB < 1388) {
+    Kimai_Logger::logfile("-- update to r1388");
+    # column already added in installer/installPermissions.php in r1374
+    exec_query("ALTER TABLE `${p}globalRoles` ADD `ki_weeksheets-access` tinyint DEFAULT 1;", false);
+}
+
 // release of kimai 1.0.0
 
 if ((int)$revisionDB < 1389) {
