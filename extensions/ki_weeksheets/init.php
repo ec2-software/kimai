@@ -58,17 +58,17 @@ $view->assign('total', $total);
 
 // Get the array of weeksheet entries.
 if (isset($kga['customer'])) {
-  $timeSheetEntries = $database->get_timeSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
+  $weekSheetEntries = $database->get_weekSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
   $view->assign('latest_running_entry', null);
 } else {
-  $timeSheetEntries = $database->get_timeSheet($in, $out, array($kga['user']['userID']), null, null, 1);
+  $weekSheetEntries = $database->get_weekSheet($in, $out, array($kga['user']['userID']), null, null, 1);
   $view->assign('latest_running_entry', $database->get_latest_running_entry());
 }
 
-if (count($timeSheetEntries) > 0) {
-    $view->assign('timeSheetEntries', $timeSheetEntries);
+if (count($weekSheetEntries) > 0) {
+    $view->assign('weekSheetEntries', $weekSheetEntries);
 } else {
-    $view->assign('timeSheetEntries', 0);
+    $view->assign('weekSheetEntries', 0);
 }
 
 // Get the annotations for the user sub list.
@@ -115,7 +115,7 @@ if (isset($kga['user'])) {
 
 $view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'));
 
-$view->assign('timeSheet_display', $view->render("timeSheet.php"));
+$view->assign('weekSheet_display', $view->render("weekSheet.php"));
 
 $view->assign('buzzerAction', "startRecord()");
 

@@ -4,7 +4,7 @@
 	$table_header = "../../../skins/standard/grfx/g3_table_header.png";
 ?>
 
-#timeSheet {
+#weekSheet {
     border:1px solid black; 
     margin:0;
     padding:0;
@@ -16,12 +16,12 @@
 
 
 
-#timeSheet { 
+#weekSheet { 
     top:150px;
     z-index:2;
 }
 
-#timeSheet_head {
+#weekSheet_head {
     border:1px solid black; 
     border-bottom:none;
     background-image: url('<?php echo $table_header; ?>');
@@ -34,11 +34,11 @@
     font-weight:bold;
 }
 
-#timeSheet_head { top:125px; }
+#weekSheet_head { top:125px; }
 
-#timeSheet_head table { border:none; }
+#weekSheet_head table { border:none; }
 
-#timeSheet_head td {
+#weekSheet_head td {
     font-weight:bold;
     color:white;
 }

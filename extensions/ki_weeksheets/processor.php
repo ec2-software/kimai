@@ -90,31 +90,31 @@ switch ($axAction) {
     case 'record':
         $response = array();
 
-        $timeSheetEntry = $database->timeSheet_get_data($id);
+        $weekSheetEntry = $database->weekSheet_get_data($id);
 
-        $timeSheetEntry['start'] = time();
-        $timeSheetEntry['end'] = 0;
-        $timeSheetEntry['duration'] = 0;
-        $timeSheetEntry['cleared'] = 0;
+        $weekSheetEntry['start'] = time();
+        $weekSheetEntry['end'] = 0;
+        $weekSheetEntry['duration'] = 0;
+        $weekSheetEntry['cleared'] = 0;
 
         $errors = array();
-        weeksheetAccessAllowed($timeSheetEntry, 'edit', $errors);
+        weeksheetAccessAllowed($weekSheetEntry, 'edit', $errors);
         $response['errors'] = $errors;
 
         if (count($errors) == 0) {
 
-          $newTimeSheetEntryID = $database->timeEntry_create($timeSheetEntry);
+          $newTimeSheetEntryID = $database->timeEntry_create($weekSheetEntry);
 
           $userData = array();
           $userData['lastRecord'] = $newTimeSheetEntryID;
-          $userData['lastProject'] = $timeSheetEntry['projectID'];
-          $userData['lastActivity'] = $timeSheetEntry['activityID'];
+          $userData['lastProject'] = $weekSheetEntry['projectID'];
+          $userData['lastActivity'] = $weekSheetEntry['activityID'];
           $database->user_edit($kga['user']['userID'], $userData);
 
 
-          $project = $database->project_get_data($timeSheetEntry['projectID']);
+          $project = $database->project_get_data($weekSheetEntry['projectID']);
           $customer = $database->customer_get_data($project['customerID']);
-          $activity = $database->activity_get_data($timeSheetEntry['activityID']);
+          $activity = $database->activity_get_data($weekSheetEntry['activityID']);
 
           $response['customer'] = $customer['customerID'];
           $response['projectName'] = $project['name'];
@@ -133,7 +133,7 @@ switch ($axAction) {
     case 'stop':
         $errors = array();
 
-        $data = $database->timeSheet_get_data($id);
+        $data = $database->weekSheet_get_data($id);
 
         weeksheetAccessAllowed($data, 'edit', $errors);
 
@@ -151,7 +151,7 @@ switch ($axAction) {
     case 'edit_running':
         $errors = array();
 
-        $data = $database->timeSheet_get_data($id);
+        $data = $database->weekSheet_get_data($id);
 
         weeksheetAccessAllowed($data, 'edit', $errors);
 
@@ -174,7 +174,7 @@ switch ($axAction) {
     case 'quickdelete':
         $errors = array();
 
-        $data = $database->timeSheet_get_data($id);
+        $data = $database->weekSheet_get_data($id);
 
         weeksheetAccessAllowed($data, 'delete', $errors);
 
@@ -222,18 +222,18 @@ switch ($axAction) {
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
-          $timeSheetEntry = $database->timeSheet_get_data($_REQUEST['timeSheetEntryID']);
+          $weekSheetEntry = $database->weekSheet_get_data($_REQUEST['weekSheetEntryID']);
           // we subtract the used data in case the activity is the same as in the db, otherwise
           // it would get counted twice. For all aother cases, just set the values to 0
           // so we don't subtract too much
-          if ($timeSheetEntry['activityID'] != $_REQUEST['activity_id'] || $timeSheetEntry['projectID'] != $_REQUEST['project_id']) {
-                  $timeSheetEntry['budget'] = 0;
-                  $timeSheetEntry['approved'] = 0;
-                  $timeSheetEntry['rate'] = 0;
+          if ($weekSheetEntry['activityID'] != $_REQUEST['activity_id'] || $weekSheetEntry['projectID'] != $_REQUEST['project_id']) {
+                  $weekSheetEntry['budget'] = 0;
+                  $weekSheetEntry['approved'] = 0;
+                  $weekSheetEntry['rate'] = 0;
           }
           $data['activityBudgets'] = $database->get_activity_budget($_REQUEST['project_id'], $_REQUEST['activity_id']);
           $data['activityUsed']    = $database->get_budget_used($_REQUEST['project_id'], $_REQUEST['activity_id']);
-          $data['timeSheetEntry']  = $timeSheetEntry;
+          $data['weekSheetEntry']  = $weekSheetEntry;
         }
 
         header('Content-Type: application/json;charset=utf-8');
@@ -339,7 +339,7 @@ switch ($axAction) {
     // =============================================
     // = Load weeksheet data from DB and return it =
     // =============================================
-    case 'reload_timeSheet':
+    case 'reload_weekSheet':
         $filters = explode('|', $axValue);
         if (empty($filters[0]))
           $filterUsers = array();
@@ -371,11 +371,11 @@ switch ($axAction) {
         if (isset($kga['customer']))
           $filterCustomers = array($kga['customer']['customerID']);
 
-        $timeSheetEntries = $database->get_timeSheet($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities, 1);
-        if (count($timeSheetEntries) > 0) {
-            $view->assign('timeSheetEntries', $timeSheetEntries);
+        $weekSheetEntries = $database->get_weekSheet($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities, 1);
+        if (count($weekSheetEntries) > 0) {
+            $view->assign('weekSheetEntries', $weekSheetEntries);
         } else {
-            $view->assign('timeSheetEntries', 0);
+            $view->assign('weekSheetEntries', 0);
         }
         $view->assign('latest_running_entry', $database->get_latest_running_entry());
         $view->assign('total', Kimai_Format::formatDuration($database->get_duration($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities)));
@@ -409,14 +409,14 @@ switch ($axAction) {
 
         $view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'));
 
-        echo $view->render("timeSheet.php");
+        echo $view->render("weekSheet.php");
     break;
 
 
     // ==============================
-    // = add / edit timeSheet entry =
+    // = add / edit weekSheet entry =
     // ==============================
-    case 'add_edit_timeSheetEntry':
+    case 'add_edit_weekSheetEntry':
       header('Content-Type: application/json;charset=utf-8');
       $errors = array();
 
@@ -427,7 +427,7 @@ switch ($axAction) {
         $action = 'delete';
 
       if ($id) {
-        $data = $database->timeSheet_get_data($id);
+        $data = $database->weekSheet_get_data($id);
 
         // check if editing or deleting with the old values would be allowed
         if (!weeksheetAccessAllowed($data, $action, $errors)) {
@@ -570,9 +570,9 @@ switch ($axAction) {
     break;
 
     // ===================================
-    // = add / edit timeSheet quick note =
+    // = add / edit weekSheet quick note =
     // ===================================
-    case 'add_edit_timeSheetQuickNote':
+    case 'add_edit_weekSheetQuickNote':
         header('Content-Type: application/json;charset=utf-8');
         $errors = array();
 
@@ -580,7 +580,7 @@ switch ($axAction) {
 
         if ($id) {
             $action = 'edit';
-            $data = $database->timeSheet_get_data($id);
+            $data = $database->weekSheet_get_data($id);
 
             // check if editing or deleting with the old values would be allowed
             if (!weeksheetAccessAllowed($data, $action, $errors)) {

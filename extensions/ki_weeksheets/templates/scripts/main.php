@@ -1,7 +1,7 @@
-<div id="timeSheet_head">
+<div id="weekSheet_head">
     <div class="left">
         <?php if (isset($this->kga['user'])): ?>
-            <a href="#" onclick="floaterShow('../extensions/ki_weeksheets/floaters.php','add_edit_timeSheetEntry',selected_project+'|'+selected_activity,0,650); $(this).blur(); return false;"><?php echo $this->kga['lang']['add'] ?></a>
+            <a href="#" onclick="floaterShow('../extensions/ki_weeksheets/floaters.php','add_edit_weekSheetEntry',selected_project+'|'+selected_activity,0,650); $(this).blur(); return false;"><?php echo $this->kga['lang']['add'] ?></a>
         <?php endif; ?>
     </div>
     <table>
@@ -45,7 +45,7 @@
         </tbody>
     </table>
 </div>
-<div id="timeSheet"><?php echo $this->timeSheet_display ?> </div>
+<div id="weekSheet"><?php echo $this->weekSheet_display ?> </div>
 <script type="text/javascript">
     $(document).ready(function () {
         ts_ext_onload();

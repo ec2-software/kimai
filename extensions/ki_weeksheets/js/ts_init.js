@@ -26,8 +26,8 @@ var ts_total = '';
 
 var scroller_width;
 var drittel;
-var timeSheet_width;
-var timeSheet_height;
+var weekSheet_width;
+var weekSheet_height;
 
 var weeksheet_timeframe_changed_hook_flag = 0;
 var weeksheet_customers_changed_hook_flag = 0;

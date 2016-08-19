@@ -24,7 +24,7 @@ require("../../includes/kspi.php");
 
 switch ($axAction) {
 
-    case "add_edit_timeSheetEntry":
+    case "add_edit_weekSheetEntry":
         if (isset($kga['customer'])) die();
     // ==============================================
     // = display edit dialog for weeksheet record   =
@@ -36,22 +36,22 @@ switch ($axAction) {
 
     // edit record
     if ($id) {
-        $timeSheetEntry = $database->timeSheet_get_data($id);
+        $weekSheetEntry = $database->weekSheet_get_data($id);
         $view->assign('id', $id);
-        $view->assign('location', $timeSheetEntry['location']);
+        $view->assign('location', $weekSheetEntry['location']);
 
         // check if this entry may be edited
-        if ($timeSheetEntry['userID'] == $kga['user']['userID']) {
+        if ($weekSheetEntry['userID'] == $kga['user']['userID']) {
           // the user's own entry
           if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-ownEntry-edit'))
             break;
         }
         else if (count(array_intersect(
             $database->getGroupMemberships($kga['user']['userID']),
-            $database->getGroupMemberships($timeSheetEntry['userID'])
+            $database->getGroupMemberships($weekSheetEntry['userID'])
           )) != 0) {
           // same group as the entry's user
-          if (!$database->checkMembershipPermission($kga['user']['userID'], $database->getGroupMemberships($timeSheetEntry['userID']), 'ki_weeksheets-otherEntry-ownGroup-edit'))
+          if (!$database->checkMembershipPermission($kga['user']['userID'], $database->getGroupMemberships($weekSheetEntry['userID']), 'ki_weeksheets-otherEntry-ownGroup-edit'))
             break;
         }
         else if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-otherEntry-otherGroup-edit'))
@@ -69,52 +69,52 @@ switch ($axAction) {
 
         $view->assign('users', $users);
 
-        $view->assign('trackingNumber', $timeSheetEntry['trackingNumber']);
-        $view->assign('description', $timeSheetEntry['description']);
-        $view->assign('comment', $timeSheetEntry['comment']);
+        $view->assign('trackingNumber', $weekSheetEntry['trackingNumber']);
+        $view->assign('description', $weekSheetEntry['description']);
+        $view->assign('comment', $weekSheetEntry['comment']);
 
         $view->assign('showRate', $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-editRates'));
-        $view->assign('rate', $timeSheetEntry['rate']);
-        $view->assign('fixedRate', $timeSheetEntry['fixedRate']);
+        $view->assign('rate', $weekSheetEntry['rate']);
+        $view->assign('fixedRate', $weekSheetEntry['fixedRate']);
 
-        $view->assign('cleared', $timeSheetEntry['cleared'] != 0);
+        $view->assign('cleared', $weekSheetEntry['cleared'] != 0);
 
-        $view->assign('userID', $timeSheetEntry['userID']);
+        $view->assign('userID', $weekSheetEntry['userID']);
 
-        $view->assign('start_day', date("d.m.Y", $timeSheetEntry['start']));
-        $view->assign('start_time', date("H:i:s", $timeSheetEntry['start']));
+        $view->assign('start_day', date("d.m.Y", $weekSheetEntry['start']));
+        $view->assign('start_time', date("H:i:s", $weekSheetEntry['start']));
 
-        if ($timeSheetEntry['end'] == 0) {
+        if ($weekSheetEntry['end'] == 0) {
           $view->assign('end_day', '');
           $view->assign('end_time', '');
         }
         else {
-          $view->assign('end_day', date("d.m.Y", $timeSheetEntry['end']));
-          $view->assign('end_time', date("H:i:s", $timeSheetEntry['end']));
+          $view->assign('end_day', date("d.m.Y", $weekSheetEntry['end']));
+          $view->assign('end_time', date("H:i:s", $weekSheetEntry['end']));
         }
 
-        $view->assign('approved', $timeSheetEntry['approved']);
-        $view->assign('budget', $timeSheetEntry['budget']);
+        $view->assign('approved', $weekSheetEntry['approved']);
+        $view->assign('budget', $weekSheetEntry['budget']);
 
         // preselected
-        $view->assign('projectID', $timeSheetEntry['projectID']);
-        $view->assign('activityID', $timeSheetEntry['activityID']);
+        $view->assign('projectID', $weekSheetEntry['projectID']);
+        $view->assign('activityID', $weekSheetEntry['activityID']);
 
-        $view->assign('commentType', $timeSheetEntry['commentType']);
-        $view->assign('statusID', $timeSheetEntry['statusID']);
-        $view->assign('billable_active', $timeSheetEntry['billable']);
+        $view->assign('commentType', $weekSheetEntry['commentType']);
+        $view->assign('statusID', $weekSheetEntry['statusID']);
+        $view->assign('billable_active', $weekSheetEntry['billable']);
 
         // budget
-        $activityBudgets = $database->get_activity_budget($timeSheetEntry['projectID'], $timeSheetEntry['activityID']);
-        $activityUsed = $database->get_budget_used($timeSheetEntry['projectID'], $timeSheetEntry['activityID']);
+        $activityBudgets = $database->get_activity_budget($weekSheetEntry['projectID'], $weekSheetEntry['activityID']);
+        $activityUsed = $database->get_budget_used($weekSheetEntry['projectID'], $weekSheetEntry['activityID']);
         $view->assign('budget_activity', round($activityBudgets['budget'], 2));
         $view->assign('approved_activity', round($activityBudgets['approved'], 2));
         $view->assign('budget_activity_used', $activityUsed);
 
 
-        if (!isset($view->projects[$timeSheetEntry['projectID']])) {
+        if (!isset($view->projects[$weekSheetEntry['projectID']])) {
           // add the currently assigned project to the list
-          $projectData = $database->project_get_data($timeSheetEntry['projectID']);
+          $projectData = $database->project_get_data($weekSheetEntry['projectID']);
           $customerData = $database->customer_get_data($projectData['customerID']);
           $view->projects[$projectData['projectID']] = $customerData['name'] . ':' . $projectData['name'];
         }
@@ -142,7 +142,7 @@ switch ($axAction) {
         $view->assign('userID', $kga['user']['userID']);
 
         if ($kga['user']['lastRecord'] != 0 && $kga['conf']['roundTimesheetEntries'] != '') {
-          $timeSheetData = $database->timeSheet_get_data($kga['user']['lastRecord']);
+          $weekSheetData = $database->weekSheet_get_data($kga['user']['lastRecord']);
           $minutes = date('i');
           if ($kga['conf']['roundMinutes'] < 60) {
             if ($kga['conf']['roundMinutes'] <= 0) {
@@ -173,10 +173,10 @@ switch ($axAction) {
           }
           $end = mktime(date("H"), $minutes, $seconds);
           $day = date("d");
-          $dayEntry = date("d", $timeSheetData['end']);
+          $dayEntry = date("d", $weekSheetData['end']);
 
           if ($day == $dayEntry) {
-                  $view->assign('start_time', date("H:i:s", $timeSheetData['end']));
+                  $view->assign('start_time', date("H:i:s", $weekSheetData['end']));
           } else {
                   $view->assign('start_time', date("H:i:s"));
           }
@@ -208,12 +208,12 @@ switch ($axAction) {
     }
     $view->assign('billable', array_combine($billableValues, $billableText));
 
-    echo $view->render("floaters/add_edit_timeSheetEntry.php");
+    echo $view->render("floaters/add_edit_weekSheetEntry.php");
 
     break;
 
 
-    case "add_edit_timeSheetQuickNote":
+    case "add_edit_weekSheetQuickNote":
         if (isset($kga['customer'])) die();
         // ================================================
         // = display edit dialog for weeksheet quick note =
@@ -224,17 +224,17 @@ switch ($axAction) {
         $view->assign('activities', makeSelectBox("activity", $kga['user']['groups']));
 
         if ($id) {
-            $timeSheetEntry = $database->timeSheet_get_data($id);
+            $weekSheetEntry = $database->weekSheet_get_data($id);
             $view->assign('id', $id);
-            $view->assign('location', $timeSheetEntry['location']);
+            $view->assign('location', $weekSheetEntry['location']);
 
             // check if this entry may be edited
-            if ($timeSheetEntry['userID'] == $kga['user']['userID']) {
+            if ($weekSheetEntry['userID'] == $kga['user']['userID']) {
                 if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-ownEntry-edit')) {
                     break;
                 }
-            } elseif ($database->is_watchable_user($kga['user'], $timeSheetEntry['userID'])) {
-                if (!$database->checkMembershipPermission($kga['user']['userID'], $database->getGroupMemberships($timeSheetEntry['userID']), 'ki_weeksheets-otherEntry-ownGroup-edit')) {
+            } elseif ($database->is_watchable_user($kga['user'], $weekSheetEntry['userID'])) {
+                if (!$database->checkMembershipPermission($kga['user']['userID'], $database->getGroupMemberships($weekSheetEntry['userID']), 'ki_weeksheets-otherEntry-ownGroup-edit')) {
                     break;
                 }
             } elseif (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-otherEntry-otherGroup-edit')) {
@@ -254,23 +254,23 @@ switch ($axAction) {
 
             $view->assign('users', $users);
 
-            $view->assign('trackingNumber', $timeSheetEntry['trackingNumber']);
-            $view->assign('description', $timeSheetEntry['description']);
-            $view->assign('comment', $timeSheetEntry['comment']);
+            $view->assign('trackingNumber', $weekSheetEntry['trackingNumber']);
+            $view->assign('description', $weekSheetEntry['description']);
+            $view->assign('comment', $weekSheetEntry['comment']);
 
-            $view->assign('commentType', $timeSheetEntry['commentType']);
-            $view->assign('cleared', $timeSheetEntry['cleared'] != 0);
+            $view->assign('commentType', $weekSheetEntry['commentType']);
+            $view->assign('cleared', $weekSheetEntry['cleared'] != 0);
 
-            $view->assign('userID', $timeSheetEntry['userID']);
+            $view->assign('userID', $weekSheetEntry['userID']);
 
-            $view->assign('projectID', $timeSheetEntry['projectID']);
-            $view->assign('activityID', $timeSheetEntry['activityID']);
+            $view->assign('projectID', $weekSheetEntry['projectID']);
+            $view->assign('activityID', $weekSheetEntry['activityID']);
 
-            $view->assign('commentType', $timeSheetEntry['commentType']);
-            $view->assign('statusID', $timeSheetEntry['statusID']);
-            $view->assign('billable_active', $timeSheetEntry['billable']);
+            $view->assign('commentType', $weekSheetEntry['commentType']);
+            $view->assign('statusID', $weekSheetEntry['statusID']);
+            $view->assign('billable_active', $weekSheetEntry['billable']);
         }
-        echo $view->render("floaters/add_edit_timeSheetQuickNote.php");
+        echo $view->render("floaters/add_edit_weekSheetQuickNote.php");
 
         break;
 }

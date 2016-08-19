@@ -68,19 +68,19 @@ function ts_ext_get_dimensions() {
 	(customerShrinkMode) ? subtableCount = 2 : subtableCount = 3;
 	subtableWidth = (pageWidth() - 10) / subtableCount - 7;
 
-	timeSheet_width = pageWidth() - 24;
-	timeSheet_height = pageHeight() - 224 - headerHeight() - 28;
+	weekSheet_width = pageWidth() - 24;
+	weekSheet_height = pageHeight() - 224 - headerHeight() - 28;
 }
 
 /**
  * Hover a row if the mouse is over it for more than half a second.
  */
 function ts_ext_applyHoverIntent() {
-	$('#timeSheet tr').hoverIntent({
+	$('#weekSheet tr').hoverIntent({
 		sensitivity: 1,
 		interval: 500,
 		over: function() {
-			$('#timeSheet tr').removeClass('hover');
+			$('#weekSheet tr').removeClass('hover');
 			$(this).addClass('hover');
 		},
 		out: function() {
@@ -102,7 +102,7 @@ function ts_ext_resize() {
  */
 function ts_ext_set_tableWrapperWidths() {
 	ts_ext_get_dimensions();
-	$("#timeSheet_head,#timeSheet").css("width",timeSheet_width);
+	$("#weekSheet_head,#weekSheet").css("width",weekSheet_width);
 	ts_ext_set_TableWidths();
 }
 
@@ -113,9 +113,9 @@ function ts_ext_set_tableWrapperWidths() {
 function ts_ext_set_heightTop() {
 	ts_ext_get_dimensions();
 	if (!extensionShrinkMode) {
-		$("#timeSheet").css("height", timeSheet_height);
+		$("#weekSheet").css("height", weekSheet_height);
 	} else {
-		$("#timeSheet").css("height", "70px");
+		$("#weekSheet").css("height", "70px");
 	}
 
 	ts_ext_set_TableWidths();
@@ -127,17 +127,17 @@ function ts_ext_set_heightTop() {
 function ts_ext_set_TableWidths() {
 	ts_ext_get_dimensions();
 	// set table widths
-	($("#timeSheet").innerHeight()-$("#timeSheet table").outerHeight()>0)?scr=0:scr=scroller_width; // width of timeSheet table depending on scrollbar or not
-	$("#timeSheet table").css("width",timeSheet_width-scr);
-	$("div#timeSheet > div > table > tbody > tr > td.trackingnumber").css("width", $("#timeSheet_head > table > tbody > tr > td.trackingnumber").width());
-	// stretch duration column in faked timeSheet table head
-	$("#timeSheet_head > table > tbody > tr > td.time").css("width", $("div#timeSheet > div > table > tbody > tr > td.time").width());
-	// stretch customer column in faked timeSheet table head
-	$("#timeSheet_head > table > tbody > tr > td.customer").css("width", $("div#timeSheet > div > table > tbody > tr > td.customer").width());
-	// stretch project column in faked timeSheet table head
-	$("#timeSheet_head > table > tbody > tr > td.project").css("width", $("div#timeSheet > div > table > tbody > tr > td.project").width());
-	// stretch activity column in faked timeSheet table head
-	$("#timeSheet_head > table > tbody > tr > td.activity").css("width", $("div#timeSheet > div > table > tbody > tr > td.activity").width());
+	($("#weekSheet").innerHeight()-$("#weekSheet table").outerHeight()>0)?scr=0:scr=scroller_width; // width of weekSheet table depending on scrollbar or not
+	$("#weekSheet table").css("width",weekSheet_width-scr);
+	$("div#weekSheet > div > table > tbody > tr > td.trackingnumber").css("width", $("#weekSheet_head > table > tbody > tr > td.trackingnumber").width());
+	// stretch duration column in faked weekSheet table head
+	$("#weekSheet_head > table > tbody > tr > td.time").css("width", $("div#weekSheet > div > table > tbody > tr > td.time").width());
+	// stretch customer column in faked weekSheet table head
+	$("#weekSheet_head > table > tbody > tr > td.customer").css("width", $("div#weekSheet > div > table > tbody > tr > td.customer").width());
+	// stretch project column in faked weekSheet table head
+	$("#weekSheet_head > table > tbody > tr > td.project").css("width", $("div#weekSheet > div > table > tbody > tr > td.project").width());
+	// stretch activity column in faked weekSheet table head
+	$("#weekSheet_head > table > tbody > tr > td.activity").css("width", $("div#weekSheet > div > table > tbody > tr > td.activity").width());
 }
 
 function weeksheet_extension_tab_changed() {
@@ -202,13 +202,13 @@ function weeksheet_extension_activities_changed() {
  */
 function ts_ext_reload() {
 	$.post(ts_ext_path + "processor.php", {
-		axAction: "reload_timeSheet",
+		axAction: "reload_weekSheet",
 		axValue: filterUsers.join(":") + '|' + filterCustomers.join(":") + '|' + filterProjects.join(":") + '|' + filterActivities.join(":"),
 		id: 0,
 		first_day: new Date($('#pick_in').val()).getTime() / 1000,
 		last_day: new Date($('#pick_out').val()).getTime() / 1000
 	}, function(data) {
-		$("#timeSheet").html(data);
+		$("#weekSheet").html(data);
 
 		ts_ext_set_TableWidths();
 		ts_ext_applyHoverIntent();
@@ -221,19 +221,19 @@ function ts_ext_reload() {
  * @param project
  * @param noUpdateRate
  * @param activity
- * @param timeSheetEntry
+ * @param weekSheetEntry
  */
-function ts_ext_reload_activities(project, noUpdateRate, activity, timeSheetEntry) {
-	var selected_activity = $('#add_edit_timeSheetEntry_activityID').val();
+function ts_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntry) {
+	var selected_activity = $('#add_edit_weekSheetEntry_activityID').val();
 	$.post(ts_ext_path + "processor.php", {
 		axAction: "reload_activities_options",
 		axValue: 0,
 		id: 0,
 		project: project
 	}, function (data) {
-		delete window['__cacheselect_add_edit_timeSheetEntry_activityID'];
-		$("#add_edit_timeSheetEntry_activityID").html(data);
-		$("#add_edit_timeSheetEntry_activityID").val(selected_activity);
+		delete window['__cacheselect_add_edit_weekSheetEntry_activityID'];
+		$("#add_edit_weekSheetEntry_activityID").html(data);
+		$("#add_edit_weekSheetEntry_activityID").val(selected_activity);
 		if (noUpdateRate == undefined) {
 			getBestRates();
 		}
@@ -242,7 +242,7 @@ function ts_ext_reload_activities(project, noUpdateRate, activity, timeSheetEntr
 				axAction: "budgets",
 				project_id: project,
 				activity_id: activity,
-				timeSheetEntryID: timeSheetEntry
+				weekSheetEntryID: weekSheetEntry
 			}, function (data) {
 				ts_ext_updateBudget(data);
 			});
@@ -253,7 +253,7 @@ function ts_ext_reload_activities(project, noUpdateRate, activity, timeSheetEntr
 /**
  * reloads budget
  * 
- * everything in data['timeSheetEntry'] has to be subtracted in case the time sheet entry is in the db already
+ * everything in data['weekSheetEntry'] has to be subtracted in case the time sheet entry is in the db already
  * part of this activity. In other cases, we already took case on server side that the values are 0
  * @param data
  */
@@ -266,7 +266,7 @@ function ts_ext_updateBudget(data) {
 	if ($('#budget_val').val() != '') {
 		budget += parseFloat($('#budget_val').val());
 	}
-	budget -= data['timeSheetEntry']['budget'];
+	budget -= data['weekSheetEntry']['budget'];
 	$('#budget_activity').text(budget);
 	var approved = data['activityBudgets']['approved'];
 	// that is the case if we changed the project and no activity is selected
@@ -276,7 +276,7 @@ function ts_ext_updateBudget(data) {
 	if ($('#approved').val() != '') {
 		approved += parseFloat($('#approved').val());
 	}
-	approved -= data['timeSheetEntry']['approved'];
+	approved -= data['weekSheetEntry']['approved'];
 	$('#budget_activity_approved').text(approved);
 	var budgetUsed = data['activityUsed'];
 	if (isNaN(budgetUsed)) {
@@ -294,7 +294,7 @@ function ts_ext_updateBudget(data) {
 		var rate = $('#rate').val();
 		if (rate != '') {
 			budgetUsed += secs / 3600 * rate;
-			budgetUsed -= data['timeSheetEntry']['duration'] / 3600 * data['timeSheetEntry']['rate'];
+			budgetUsed -= data['weekSheetEntry']['duration'] / 3600 * data['weekSheetEntry']['rate'];
 		}
 	}
 	$('#budget_activity_used').text(Math.round(budgetUsed,2));
@@ -309,18 +309,18 @@ function ts_ext_updateBudget(data) {
  * @param id
  */
 function ts_ext_recordAgain(project,activity,id) {
-	$('#timeSheetEntry' + id + '>td>a').blur();
+	$('#weekSheetEntry' + id + '>td>a').blur();
 
 	if (currentRecording > -1) {
 		stopRecord();
 	}
 
-	$('#timeSheetEntry' + id + '>td>a.recordAgain>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
+	$('#weekSheetEntry' + id + '>td>a.recordAgain>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
 	var now = Math.floor(((new Date()).getTime()) / 1000);
 	offset = now;
 	startsec = 0;
 	show_stopwatch();
-	$('#timeSheetEntry'+id+'>td>a').removeAttr('onclick');
+	$('#weekSheetEntry'+id+'>td>a').removeAttr('onclick');
 
 	$.post(ts_ext_path + "processor.php", {
 		axAction: "record", 
@@ -356,11 +356,11 @@ function ts_ext_stopRecord(id) {
 	ticktack_off();
 	show_selectors();
 	if (id) {
-		$('#timeSheetEntry' + id + '>td').css("background-color", "#F00");
-		$('#timeSheetEntry' + id + '>td>a.stop>img').attr("src", "../skins/" + skin + "/grfx/loading13_red.gif");
-		$('#timeSheetEntry' + id + '>td>a').blur();
-		$('#timeSheetEntry' + id + '>td>a').removeAttr('onclick');
-		$('#timeSheetEntry' + id + '>td').css("color", "#FFF");
+		$('#weekSheetEntry' + id + '>td').css("background-color", "#F00");
+		$('#weekSheetEntry' + id + '>td>a.stop>img').attr("src", "../skins/" + skin + "/grfx/loading13_red.gif");
+		$('#weekSheetEntry' + id + '>td>a').blur();
+		$('#weekSheetEntry' + id + '>td>a').removeAttr('onclick');
+		$('#weekSheetEntry' + id + '>td').css("color", "#FFF");
 	}
 	$.post(ts_ext_path + "processor.php", {
 		axAction: "stop",
@@ -376,7 +376,7 @@ function ts_ext_stopRecord(id) {
  * @param id
  */
 function quickdelete(id) {
-	$('#timeSheetEntry'+id+'>td>a').blur();
+	$('#weekSheetEntry'+id+'>td>a').blur();
 
 	if (confirmText != undefined) {
 		var check = confirm(confirmText);
@@ -385,8 +385,8 @@ function quickdelete(id) {
 		}
 	}
 
-	$('#timeSheetEntry' + id + '>td>a').removeAttr('onclick');
-	$('#timeSheetEntry' + id + '>td>a.quickdelete>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
+	$('#weekSheetEntry' + id + '>td>a').removeAttr('onclick');
+	$('#weekSheetEntry' + id + '>td>a.quickdelete>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
 
 	$.post(ts_ext_path + "processor.php", {
 		axAction: "quickdelete",
@@ -410,7 +410,7 @@ function quickdelete(id) {
  * @param id
  */
 function editRecord(id) {
-	floaterShow(ts_ext_path + "floaters.php", "add_edit_timeSheetEntry", 0, id, 650);
+	floaterShow(ts_ext_path + "floaters.php", "add_edit_weekSheetEntry", 0, id, 650);
 }
 
 /**
@@ -418,7 +418,7 @@ function editRecord(id) {
  * @param id
  */
 function editQuickNote(id) {
-	floaterShow(ts_ext_path + "floaters.php", "add_edit_timeSheetQuickNote", 0, id, 650);
+	floaterShow(ts_ext_path + "floaters.php", "add_edit_weekSheetQuickNote", 0, id, 650);
 }
 
 /**
@@ -428,8 +428,8 @@ function getBestRates() {
 	$.getJSON(ts_ext_path + "processor.php", {
 		axAction: "bestFittingRates",
 		axValue: 0,
-		project_id: $("#add_edit_timeSheetEntry_projectID").val(),
-		activity_id: $("#add_edit_timeSheetEntry_activityID").val()
+		project_id: $("#add_edit_weekSheetEntry_projectID").val(),
+		activity_id: $("#add_edit_weekSheetEntry_activityID").val()
 	}, function (data) {
 		if (data.errors.length > 0) {
 			return;
@@ -438,15 +438,15 @@ function getBestRates() {
 		if (data.hourlyRate == false) {
 			//TODO: why does Kimai do this? If we already set a rate
 			// we might want to keep it, not just reset it to empty..?
-			// $("#ts_ext_form_add_edit_timeSheetEntry #rate").val('');
+			// $("#ts_ext_form_add_edit_weekSheetEntry #rate").val('');
 		} else {
-			$("#ts_ext_form_add_edit_timeSheetEntry #rate").val(data.hourlyRate);
+			$("#ts_ext_form_add_edit_weekSheetEntry #rate").val(data.hourlyRate);
 		}
 
 		if (data.fixedRate == false) {
-			$("#ts_ext_form_add_edit_timeSheetEntry #fixedRate").val('');
+			$("#ts_ext_form_add_edit_weekSheetEntry #fixedRate").val('');
 		} else {
-			$("#ts_ext_form_add_edit_timeSheetEntry #fixedRate").val(data.fixedRate);
+			$("#ts_ext_form_add_edit_weekSheetEntry #fixedRate").val(data.fixedRate);
 		}
 	});
 }

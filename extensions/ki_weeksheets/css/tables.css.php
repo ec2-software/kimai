@@ -44,7 +44,7 @@ div.ki_weeksheet tr.odd td
 /*    border-top: 1px solid #DDD;*/
     padding: 3px 4px 4px 5px;
 }
-#timeSheet_head td {padding: 3px 4px 4px 6px;}
+#weekSheet_head td {padding: 3px 4px 4px 6px;}
 
 div.ki_weeksheet tr.hover td {
     background: #FFC !important;
@@ -60,19 +60,19 @@ div.ki_weeksheet tr.odd td {
     background: #EEE;
 }
 
-div#timeSheetTable tr td.time {
+div#weekSheetTable tr td.time {
     border-bottom:1px dotted white;;
 }
 
-div#timeSheetTable tr.even td.time {
+div#weekSheetTable tr.even td.time {
     background: #A4E7A5;
 }
 
-div#timeSheetTable tr.odd td.time {
+div#weekSheetTable tr.odd td.time {
     background: #64BF61;
 }
 
-div#timeSheetTable tr.active td.time {
+div#weekSheetTable tr.active td.time {
     background: #F00;
 }
 
@@ -85,51 +85,51 @@ div.ki_weeksheet tr td.wage {
     text-align:center;
 }
 
-div.ki_weeksheet>div#timeSheet>div#timeSheetTable>table>tbody>tr>td.username {
+div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     border-right: none;
 }
 
-#timeSheet_head td { white-space:nowrap; }
+#weekSheet_head td { white-space:nowrap; }
 
-#timeSheet_head td.option,
-#timeSheet td.option
+#weekSheet_head td.option,
+#weekSheet td.option
 {
     width:70px;
 }
 
-#timeSheet_head td.date,
-#timeSheet td.date
+#weekSheet_head td.date,
+#weekSheet td.date
 {
     width:50px;
 }
 
-#timeSheet_head td.time,
-#timeSheet td.time
+#weekSheet_head td.time,
+#weekSheet td.time
 {
     width:40px;
 }
 
-#timeSheet_head td.wage,
-#timeSheet td.wage
+#weekSheet_head td.wage,
+#weekSheet td.wage
 {
     width:40px;
 }
 
-#timeSheet_head td.description,
-#timeSheet td.description
+#weekSheet_head td.description,
+#weekSheet td.description
 {
     width:450px;
 }
 
-#timeSheet_head td.from,
-#timeSheet_head td.to,
-#timeSheet td.from,
-#timeSheet td.to
+#weekSheet_head td.from,
+#weekSheet_head td.to,
+#weekSheet td.from,
+#weekSheet td.to
 {
     width:50px;
 }
 
-div#timeSheet_head div.left
+div#weekSheet_head div.left
 { 
     position:absolute;
     overflow:hidden;
@@ -139,7 +139,7 @@ div#timeSheet_head div.left
     left:3px;
 }
 
-div#timeSheet_head div.left a
+div#weekSheet_head div.left a
 { 
     background-image: url('<?php echo $add; ?>');
     overflow:hidden;
@@ -149,7 +149,7 @@ div#timeSheet_head div.left a
     text-indent:-500px;
 }
 
-div#timeSheet_head td {padding: 3px 4px 4px 6px;}
+div#weekSheet_head td {padding: 3px 4px 4px 6px;}
 
 
 tbody tr.comm0 td {

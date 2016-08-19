@@ -1,9 +1,9 @@
 <?php
 
-if ($this->timeSheetEntries)
+if ($this->weekSheetEntries)
 {
     ?>
-        <div id="timeSheetTable">
+        <div id="weekSheetTable">
         
           <table>
               
@@ -34,7 +34,7 @@ if ($this->timeSheetEntries)
     $end_buffer     = 0; // last time entry
     $ts_buffer      = 0; // current time entry
 
-    foreach ($this->timeSheetEntries as $rowIndex => $row)
+    foreach ($this->weekSheetEntries as $rowIndex => $row)
     {
         //Assign initial value to time buffer which must be larger than or equal to "end"
         if ($time_buffer == 0) {
@@ -66,9 +66,9 @@ if ($this->timeSheetEntries)
         ?>
 
         <?php if ($row['end']): ?>
-            <tr id="timeSheetEntry<?php echo $row['timeEntryID']?>" class="<?php echo $this->cycle(array("odd","even"))->next()?>">
+            <tr id="weekSheetEntry<?php echo $row['timeEntryID']?>" class="<?php echo $this->cycle(array("odd","even"))->next()?>">
         <?php else: ?>
-            <tr id="timeSheetEntry<?php echo $row['timeEntryID']?>" class="<?php echo $this->cycle(array("odd","even"))->next()?> active">
+            <tr id="weekSheetEntry<?php echo $row['timeEntryID']?>" class="<?php echo $this->cycle(array("odd","even"))->next()?> active">
         <?php endif; ?>
 
         <td nowrap class="option <?php echo $tdClass; ?>">

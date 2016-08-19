@@ -35,9 +35,9 @@
         </ul>
     </div>
 
-    <form id="ts_ext_form_add_edit_timeSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
+    <form id="ts_ext_form_add_edit_weekSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
     <input type="hidden" name="id" value="<?php echo $this->id?>" />
-    <input type="hidden" name="axAction" value="add_edit_timeSheetEntry" />
+    <input type="hidden" name="axAction" value="add_edit_weekSheetEntry" />
 	<input type="hidden" id="stepMinutes" value="<?php echo $this->kga['conf']['roundMinutes']?>" />
 	<input type="hidden" id="stepSeconds" value="<?php echo $this->kga['conf']['roundSeconds']?>" />
 	<input type="hidden" id="roundTimesheetEntries" value="<?php echo $this->kga['conf']['roundTimesheetEntries']?>" />
@@ -49,14 +49,14 @@
                         <div class="multiFields">
                             <?php echo $this->formSelect('projectID', $this->projectID, array(
                                 'size' => '5',
-                                'id' => 'add_edit_timeSheetEntry_projectID',
+                                'id' => 'add_edit_weekSheetEntry_projectID',
                                 'class' => 'formfield',
                                 'style' => 'width:400px',
                                 'tabindex' => '1',
-                                'onChange' => "ts_ext_reload_activities($('#add_edit_timeSheetEntry_projectID').val(),undefined,$('#add_edit_timeSheetEntry_activityID').val(), $('input[name=\'id\']').val());"
+                                'onChange' => "ts_ext_reload_activities($('#add_edit_weekSheetEntry_projectID').val(),undefined,$('#add_edit_weekSheetEntry_activityID').val(), $('input[name=\'id\']').val());"
                             ), $this->projects); ?>
                             <br/>
-                            <input type="text" style="width:395px;margin-top:3px" tabindex="2" size="10" name="filter" id="filter" onkeyup="filter_selects('add_edit_timeSheetEntry_projectID', this.value);"/>
+                            <input type="text" style="width:395px;margin-top:3px" tabindex="2" size="10" name="filter" id="filter" onkeyup="filter_selects('add_edit_weekSheetEntry_projectID', this.value);"/>
                         </div>
                     </li>
                     <li>
@@ -64,14 +64,14 @@
                         <div class="multiFields">
                             <?php echo $this->formSelect('activityID', $this->activityID, array(
                                 'size' => '5',
-                                'id' => 'add_edit_timeSheetEntry_activityID',
+                                'id' => 'add_edit_weekSheetEntry_activityID',
                                 'class' => 'formfield',
                                 'style' => 'width:400px',
                                 'tabindex' => '3',
                                 'onChange' => "getBestRates();"
                             ), $this->activities); ?>
                             <br/>
-                            <input type="text" style="width:395px;margin-top:3px" tabindex="4" size="10" name="filter" id="filter" onkeyup="filter_selects('add_edit_timeSheetEntry_activityID', this.value);"/>
+                            <input type="text" style="width:395px;margin-top:3px" tabindex="4" size="10" name="filter" id="filter" onkeyup="filter_selects('add_edit_weekSheetEntry_activityID', this.value);"/>
                         </div>
                     </li>
                     <li>
@@ -263,12 +263,12 @@
             return false;
         });
 
-        $('#add_edit_timeSheetEntry_activityID').change(function () {
+        $('#add_edit_weekSheetEntry_activityID').change(function () {
             $.getJSON("../extensions/ki_weeksheets/processor.php", {
                     axAction: "budgets",
-                    project_id: $("#add_edit_timeSheetEntry_projectID").val(),
-                    activity_id: $("#add_edit_timeSheetEntry_activityID").val(),
-                    timeSheetEntryID: $('input[name="id"]').val()
+                    project_id: $("#add_edit_weekSheetEntry_projectID").val(),
+                    activity_id: $("#add_edit_weekSheetEntry_activityID").val(),
+                    weekSheetEntryID: $('input[name="id"]').val()
                 },
                 function (data) {
                     ts_ext_updateBudget(data);
@@ -313,8 +313,8 @@
             source: function (req, add) {
                 $.getJSON("../extensions/ki_weeksheets/processor.php", {
                         axAction: "allFittingRates",
-                        project: $("#add_edit_timeSheetEntry_projectID").val(),
-                        activity: $("#add_edit_timeSheetEntry_activityID").val()
+                        project: $("#add_edit_weekSheetEntry_projectID").val(),
+                        activity: $("#add_edit_weekSheetEntry_activityID").val()
                     },
                     function (data) {
                         if (data.errors.length != 0) {
@@ -345,8 +345,8 @@
             source: function (req, add) {
                 $.getJSON("../extensions/ki_weeksheets/processor.php", {
                         axAction: "allFittingFixedRates",
-                        project: $("#add_edit_timeSheetEntry_projectID").val(),
-                        activity: $("#add_edit_timeSheetEntry_activityID").val()
+                        project: $("#add_edit_weekSheetEntry_projectID").val(),
+                        activity: $("#add_edit_weekSheetEntry_activityID").val()
                     },
                     function (data) {
                         if (data.errors.length != 0) {
@@ -369,7 +369,7 @@
         };
         <?php endif; ?>
 
-        $('#ts_ext_form_add_edit_timeSheetEntry').ajaxForm({
+        $('#ts_ext_form_add_edit_weekSheetEntry').ajaxForm({
             'beforeSubmit': function () {
                 clearFloaterErrorMessages();
                 if (!$('#start_day').val().match(ts_dayFormatExp) ||
@@ -450,16 +450,16 @@
                 var deleted = $('#erase').is(':checked');
 
 
-                if ($('#ts_ext_form_add_edit_timeSheetEntry').attr('submitting')) {
+                if ($('#ts_ext_form_add_edit_weekSheetEntry').attr('submitting')) {
                     return false;
                 }
                 else {
-                    $('#ts_ext_form_add_edit_timeSheetEntry').attr('submitting', true);
+                    $('#ts_ext_form_add_edit_weekSheetEntry').attr('submitting', true);
                     return true;
                 }
             },
             'success': function (result) {
-                $('#ts_ext_form_add_edit_timeSheetEntry').removeAttr('submitting');
+                $('#ts_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
                 for (var fieldName in result.errors) {
                     setFloaterErrorMessage(fieldName, result.errors[fieldName]);
                 }
@@ -471,14 +471,14 @@
             },
 
             'error': function () {
-                $('#ts_ext_form_add_edit_timeSheetEntry').removeAttr('submitting');
+                $('#ts_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
             }
         });
         <?php if (isset($this->id)) { ?>
         ts_ext_reload_activities(<?php echo $this->projectID?>, true);
         <?php } else { ?>
-        $("#add_edit_timeSheetEntry_projectID").val(selected_project);
-        $("#add_edit_timeSheetEntry_activityID").val(selected_activity);
+        $("#add_edit_weekSheetEntry_projectID").val(selected_project);
+        $("#add_edit_weekSheetEntry_activityID").val(selected_activity);
         ts_ext_reload_activities(selected_project);
         <?php } ?>
         
