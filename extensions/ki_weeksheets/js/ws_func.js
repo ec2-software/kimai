@@ -27,7 +27,7 @@ function ws_ext_onload() {
 	ws_ext_applyHoverIntent();
 	ws_ext_resize();
 	$("#loader").hide();
-	lisws_visible(true);
+	lists_visible(true);
 }
 
 /**
