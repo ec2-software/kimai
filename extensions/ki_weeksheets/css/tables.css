@@ -1,12 +1,3 @@
-<?php
-  header('Content-type: text/css');
-
-	$table_header = "../../../skins/standard/grfx/g3_table_header.png";
-	$add = "../../../skins/standard/grfx/add.png";
-	$schraff0 = "../../../skins/standard/grfx/schraff0.gif";
-	$schraff1 = "../../../skins/standard/grfx/schraff1.gif";
-	$schraff2 = "../../../skins/standard/grfx/schraff2.gif";
-?>
 
 div.ki_weeksheet table {
     border-collapse: collapse;
@@ -32,7 +23,7 @@ div.ki_weeksheet table thead {
 }
 
 div.ki_weeksheet table thead th {
-    background-image: url('<?php echo $table_header; ?>');
+    background-image: url('../../../skins/standard/grfx/g3_table_header.png');
 }
 
 div.ki_weeksheet tr.even td,
@@ -97,40 +88,32 @@ div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     width:70px;
 }
 
+#weekSheet_head td.date.weekend
+{
+    background-color: #f44;
+}
+
 #weekSheet_head td.date,
 #weekSheet td.date
 {
-    width:50px;
+    width:60px;
 }
 
-#weekSheet_head td.time,
-#weekSheet td.time
-{
-    width:40px;
+
+#weekSheet td.date input{
+    width: 100%;
 }
 
-#weekSheet_head td.wage,
-#weekSheet td.wage
+#weekSheet_head td.project,
+#weekSheet td.project,
 {
-    width:40px;
+    width:300px;
 }
 
-#weekSheet_head td.description,
-#weekSheet td.description
-{
-    width:450px;
-}
 
-#weekSheet_head td.from,
-#weekSheet_head td.to,
-#weekSheet td.from,
-#weekSheet td.to
-{
-    width:50px;
-}
 
 div#weekSheet_head div.left
-{ 
+{
     position:absolute;
     overflow:hidden;
     width:32px;
@@ -140,8 +123,8 @@ div#weekSheet_head div.left
 }
 
 div#weekSheet_head div.left a
-{ 
-    background-image: url('<?php echo $add; ?>');
+{
+    background-image: url('../../../skins/standard/grfx/add.png');
     overflow:hidden;
     display:block;
     width:22px;
@@ -155,19 +138,19 @@ div#weekSheet_head td {padding: 3px 4px 4px 6px;}
 tbody tr.comm0 td {
     padding:5px;
     background: #fff;
-    background-image:url('<?php echo $schraff0; ?>');
+    background-image:url('../../../skins/standard/grfx/schraff0.gif');
 }
 
 tbody tr.comm1 td {
     padding:5px;
     background: #ff9;
-    background-image:url('<?php echo $schraff1; ?>');
+    background-image:url('../../../skins/standard/grfx/schraff1.gif');
 }
 
 tbody tr.comm2 td {
     padding:5px;
     background: #f00;
-    background-image:url('<?php echo $schraff2; ?>');
+    background-image:url('../../../skins/standard/grfx/schraff2.gif');
     font-weight:bold;
     color:#fff;
 }
@@ -181,6 +164,3 @@ tbody tr.comm2 td {
 .time_overlap {
         border-top:2px solid red;
 }
-
-
-
