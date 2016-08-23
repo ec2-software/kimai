@@ -1,11 +1,11 @@
 <div id="floater_innerwrap">
     <div id="floater_handle">
-        <span id="floater_title"><?php 
+        <span id="floater_title"><?php
             if (isset($this->id)) {
                 echo $this->kga['lang']['edit'];
             } else {
                 echo $this->kga['lang']['add'];
-            } 
+            }
             ?></span>
         <div class="right">
             <a href="#" class="close" onclick="floaterClose();return false;"><?php echo $this->kga['lang']['close'] ?></a>
@@ -263,19 +263,6 @@
             return false;
         });
 
-        $('#add_edit_weekSheetEntry_activityID').change(function () {
-            $.getJSON("../extensions/ki_weeksheets/processor.php", {
-                    axAction: "budgets",
-                    project_id: $("#add_edit_weekSheetEntry_projectID").val(),
-                    activity_id: $("#add_edit_weekSheetEntry_activityID").val(),
-                    weekSheetEntryID: $('input[name="id"]').val()
-                },
-                function (data) {
-                    ws_ext_updateBudget(data);
-                }
-            );
-        });
-
         $("#budget").focus(function () {
             previousBudget = this.value;
         }).change(function () {
@@ -481,7 +468,7 @@
         $("#add_edit_weekSheetEntry_activityID").val(selected_activity);
         ws_ext_reload_activities(selected_project);
         <?php } ?>
-        
+
         ws_timeToDuration();
         // ws_timeToDuration will set the value of duration. The first time, the value
         // will be set and the duration is added to the budgetUsed eventhough it shouldn't
@@ -511,7 +498,7 @@
     });
     // document ready
 
-    function saveDuration() {
+    function saveDurationWeeksheet() {
         var durationArray = $("#duration").val().split(/:|\./);
         var secs = 0;
         if (durationArray.length > 0 && durationArray.length < 4) {
@@ -531,7 +518,7 @@
         previousUsed = secs / 3600 * rate;
     }
 
-    function updateDuration() {
+    function updateDurationWeeksheet() {
         var durationArray = $("#duration").val().split(/:|\./);
         var secs = 0;
         if (durationArray.length > 0 && durationArray.length < 4) {
@@ -551,7 +538,7 @@
         var used = secs / 3600 * rate;
         $('#budget_activity_used').text(Math.round(parseFloat($('#budget_activity_used').text()) - previousUsed + used), 2);
     }
-    function generateChart() {
+    function generateChartWeeksheet() {
         var durationArray = $("#duration").val().split(/:|\./);
         var secs = 0;
         if (durationArray.length > 0 && durationArray.length < 4) {

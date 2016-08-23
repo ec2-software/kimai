@@ -88,9 +88,13 @@ div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     width:70px;
 }
 
-#weekSheet_head td.date.weekend
+#weekSheet td.date.weekend
 {
-    background-color: #f44;
+    background-color: #f99;
+}
+
+.copy-previous a {
+    color: white;
 }
 
 #weekSheet_head td.date,

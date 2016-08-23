@@ -53,16 +53,18 @@ if ($this->weekSheetEntries)
       $date = new DateTime();
       $date->setTimeStamp($row['start']);
       $date = $date->format('Y-m-d');
+      $pair = array('id' => $row['timeEntryID'] + 0, 'duration' => $row['duration']);
 
       if (isset($entry[$date]))
       {
         $entry[$date]['total'] += $row['duration'];
+        $entry[$date]['entries'][] = $pair;
       }
       else
       {
         $entry[$date] = array(
           'total' => $row['duration'],
-          'id' => $row['timeEntryID'],
+          'entries' => array($pair),
         );
       }
 
@@ -100,7 +102,12 @@ if ($this->weekSheetEntries)
               $entry = $project[$fdate];
               ?>
               <td class="date">
-                  <input type="number" value="<?php if ($entry['total']) echo $entry['total']; ?>" />
+                  <input type="number"
+                    value="<?php if ($entry['total']) echo $entry['total']; ?>"
+                    min="0"
+                    data-entries="<?php echo htmlspecialchars(json_encode($entry['entries'])); ?>"
+                    onchange="ws_ext_on_input_change(event)"
+                    />
               </td>
               <?php
           }

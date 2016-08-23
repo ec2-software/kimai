@@ -56,6 +56,47 @@ function ws_formatDate(value) {
 	return day + '.' + month + '.' + year;
 }
 
+function ws_ext_copy_previous_week() {
+	console.log("I do nothing");
+}
+
+function ws_ext_on_input_change(e) {
+	var entries = JSON.parse(e.target.dataset.entries);
+	var sum = entries
+	.map(function(a) {
+		return a.duration;
+	}).reduce(function(a, b){
+		return a + b;
+	}, 0);
+	var newValue = parseInt(e.target.value);
+	console.log(entries[0]);
+	if (newValue == sum) return;
+	if (newValue < sum) {
+		var requiredDifference = sum - newValue;
+		for (var i = 0; i < entries.length && requiredDifference > 0; i++) {
+			if (entries[i].duration > requiredDifference) {
+				entries[i].duration -= requiredDifference;
+				requiredDifference = 0;
+			} else {
+				entries[i].deleted = true;
+				requiredDifference -= entries[i].duration;
+			}
+		}
+	} else {
+		entries[0].duration += newValue - sum;
+	}
+	var newSum = entries
+	.map(function(a) {
+		return a.duration;
+	}).reduce(function(a, b){
+		return a + b;
+	}, 0);
+	if (newValue != newSum) {
+		throw "Invalid logic new sum is " + newSum + " it should be " + newValue;
+	}
+	console.log(entries[0]);
+}
+
 /**
  * Update the dimension variables to reflect new height and width.
  */
@@ -217,7 +258,7 @@ function ws_ext_reload() {
 
 /**
  * reloads weeksheet, customer, project and activity tables
- * 
+ *
  * @param project
  * @param noUpdateRate
  * @param activity
@@ -237,22 +278,12 @@ function ws_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntr
 		if (noUpdateRate == undefined) {
 			getBestRates();
 		}
-		if (activity > 0) {
-			$.getJSON("../extensions/ki_weeksheets/processor.php", {
-				axAction: "budgets",
-				project_id: project,
-				activity_id: activity,
-				weekSheetEntryID: weekSheetEntry
-			}, function (data) {
-				ws_ext_updateBudget(data);
-			});
-		}
 	});
 }
 
 /**
  * reloads budget
- * 
+ *
  * everything in data['weekSheetEntry'] has to be subtracted in case the time sheet entry is in the db already
  * part of this activity. In other cases, we already took case on server side that the values are 0
  * @param data
@@ -303,7 +334,7 @@ function ws_ext_updateBudget(data) {
 /**
  * this function is attached to the little green arrows in front of each weeksheet record
  * and starts recording that activity anew
- * 
+ *
  * @param project
  * @param activity
  * @param id
@@ -323,7 +354,7 @@ function ws_ext_recordAgain(project,activity,id) {
 	$('#weekSheetEntry'+id+'>td>a').removeAttr('onclick');
 
 	$.post(ws_ext_path + "processor.php", {
-		axAction: "record", 
+		axAction: "record",
 		axValue: 0,
 		id: id
 	}, function (data) {
@@ -349,7 +380,7 @@ function ws_ext_recordAgain(project,activity,id) {
 /**
  * this function is attached to the little green arrows in front of each weeksheet record
  * and starts recording that activity anew
- * 
+ *
  * @param id
  */
 function ws_ext_stopRecord(id) {
@@ -375,7 +406,7 @@ function ws_ext_stopRecord(id) {
  * delete a weeksheet record immediately
  * @param id
  */
-function quickdelete(id) {
+function quickdeleteWeeksheet(id) {
 	$('#weekSheetEntry'+id+'>td>a').blur();
 
 	if (confirmText != undefined) {
@@ -409,7 +440,7 @@ function quickdelete(id) {
  * edit a weeksheet record
  * @param id
  */
-function editRecord(id) {
+function editRecordWeeksheet(id) {
 	floaterShow(ws_ext_path + "floaters.php", "add_edit_weekSheetEntry", 0, id, 650);
 }
 
@@ -417,14 +448,14 @@ function editRecord(id) {
  * edit a weeksheet quick note
  * @param id
  */
-function editQuickNote(id) {
+function editQuickNoteWeeksheet(id) {
 	floaterShow(ws_ext_path + "floaters.php", "add_edit_weekSheetQuickNote", 0, id, 650);
 }
 
 /**
  * refresh the rate with a new value, if this is a new entry
  */
-function getBestRates() {
+function getBestRatesWeeksheet() {
 	$.getJSON(ws_ext_path + "processor.php", {
 		axAction: "bestFittingRates",
 		axValue: 0,
@@ -459,7 +490,7 @@ function getBestRates() {
  *
  * @param value
  */
-function pasteNow(value) {
+function pasteNowWeeksheet(value) {
 	var now = new Date();
 	var hours = prependZeroIfNeeded(now.getHours());
 	var minutes = prependZeroIfNeeded(now.getMinutes());
