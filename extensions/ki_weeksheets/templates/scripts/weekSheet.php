@@ -106,6 +106,8 @@ if ($this->weekSheetEntries)
                     value="<?php if ($entry['total']) echo $entry['total']; ?>"
                     min="0"
                     data-entries="<?php echo htmlspecialchars(json_encode($entry['entries'])); ?>"
+                    data-project="<?php echo htmlspecialchars(json_encode($project)); ?>"
+                    data-project="<?php echo htmlspecialchars($fdate); ?>"
                     onchange="ws_ext_on_input_change(event)"
                     />
               </td>

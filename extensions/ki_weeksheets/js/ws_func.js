@@ -61,15 +61,35 @@ function ws_ext_copy_previous_week() {
 }
 
 function ws_ext_on_input_change(e) {
+	// Parse the data
 	var entries = JSON.parse(e.target.dataset.entries);
+	var project = JSON.parse(e.target.dataset.project);
+	var day = e.target.dataset.day;
+	var newValue = parseInt(e.target.value);
+
+	if (!entries) {
+		$.post(ws_ext_path + "processor.php", {
+			axAction: "add_weekday",
+			day: day,
+			duration: newValue,
+			project: project,
+		}, function(data) {
+			console.log(data);
+			ws_ext_reload();
+		});
+		return;
+	}
+	
 	var sum = entries
 	.map(function(a) {
 		return a.duration;
 	}).reduce(function(a, b){
 		return a + b;
 	}, 0);
-	var newValue = parseInt(e.target.value);
-	console.log(entries[0]);
+
+	if (isNaN(newValue)) newValue = 0;
+
+	// Calculate the new values
 	if (newValue == sum) return;
 	if (newValue < sum) {
 		var requiredDifference = sum - newValue;
@@ -78,8 +98,9 @@ function ws_ext_on_input_change(e) {
 				entries[i].duration -= requiredDifference;
 				requiredDifference = 0;
 			} else {
-				entries[i].deleted = true;
+				//entries[i].deleted = true;
 				requiredDifference -= entries[i].duration;
+				entries[i].duration = 0;
 			}
 		}
 	} else {
@@ -94,7 +115,17 @@ function ws_ext_on_input_change(e) {
 	if (newValue != newSum) {
 		throw "Invalid logic new sum is " + newSum + " it should be " + newValue;
 	}
-	console.log(entries[0]);
+
+
+
+	// Submit the new values to the server
+	$.post(ws_ext_path + "processor.php", {
+		axAction: "update_weekday",
+		entries: entries,
+	}, function(data) {
+		console.log(data);
+		ws_ext_reload();
+	});
 }
 
 /**
@@ -276,7 +307,7 @@ function ws_ext_reload_activities(project, noUpdateRate, activity, weekSheetEntr
 		$("#add_edit_weekSheetEntry_activityID").html(data);
 		$("#add_edit_weekSheetEntry_activityID").val(selected_activity);
 		if (noUpdateRate == undefined) {
-			getBestRates();
+			getBestRatesWeeksheet();
 		}
 	});
 }
@@ -417,10 +448,10 @@ function quickdeleteWeeksheet(id) {
 	}
 
 	$('#weekSheetEntry' + id + '>td>a').removeAttr('onclick');
-	$('#weekSheetEntry' + id + '>td>a.quickdelete>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
+	$('#weekSheetEntry' + id + '>td>a.quickdeleteWeeksheet>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
 
 	$.post(ws_ext_path + "processor.php", {
-		axAction: "quickdelete",
+		axAction: "quickdeleteWeeksheet",
 		axValue: 0,
 		id: id
 	}, function (result) {
@@ -442,14 +473,6 @@ function quickdeleteWeeksheet(id) {
  */
 function editRecordWeeksheet(id) {
 	floaterShow(ws_ext_path + "floaters.php", "add_edit_weekSheetEntry", 0, id, 650);
-}
-
-/**
- * edit a weeksheet quick note
- * @param id
- */
-function editQuickNoteWeeksheet(id) {
-	floaterShow(ws_ext_path + "floaters.php", "add_edit_weekSheetQuickNote", 0, id, 650);
 }
 
 /**

@@ -27,7 +27,7 @@ $dir_templates = "templates/";
 require("../../includes/kspi.php");
 
 function weeksheetAccessAllowed($entry, $action, &$errors) {
-  global $database, $kga;
+    global $database, $kga;
 
   if (!isset($kga['user'])) {
     $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
@@ -44,7 +44,7 @@ function weeksheetAccessAllowed($entry, $action, &$errors) {
   $groups = $database->getGroupMemberships($entry['userID']);
 
   if ($entry['userID'] == $kga['user']['userID']) {
-    $permissionName = 'ki_weeksheets-ownEntry-' . $action;
+    $permissionName = 'ki_timesheets-ownEntry-' . $action;
     if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
       return true;
     } else {
@@ -57,7 +57,7 @@ function weeksheetAccessAllowed($entry, $action, &$errors) {
   $assignedOwnGroups = array_intersect($groups, $database->getGroupMemberships($kga['user']['userID']));
 
   if (count($assignedOwnGroups) > 0) {
-    $permissionName = 'ki_weeksheets-otherEntry-ownGroup-' . $action;
+    $permissionName = 'ki_timesheets-otherEntry-ownGroup-' . $action;
     if ($database->checkMembershipPermission($kga['user']['userID'], $assignedOwnGroups, $permissionName)) {
       return true;
     } else {
@@ -68,7 +68,7 @@ function weeksheetAccessAllowed($entry, $action, &$errors) {
 
   }
 
-  $permissionName = 'ki_weeksheets-otherEntry-otherGroup-' . $action;
+  $permissionName = 'ki_timesheets-otherEntry-otherGroup-' . $action;
   if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
     return true;
   } else {
@@ -169,9 +169,9 @@ switch ($axAction) {
     break;
 
     // =========================================
-    // = Erase weeksheet entry via quickdelete =
+    // = Erase weeksheet entry via quickdeleteWeeksheet =
     // =========================================
-    case 'quickdelete':
+    case 'quickdeleteWeeksheet':
         $errors = array();
 
         $data = $database->timeSheet_get_data($id);
@@ -315,7 +315,7 @@ switch ($axAction) {
                   $data['rates'][] = array('value'=>$rate['rate'], 'desc'=>$line);
               }
           }
-            
+
         }
 
         header('Content-Type: application/json;charset=utf-8');
@@ -608,6 +608,78 @@ switch ($axAction) {
             Kimai_Logger::logfile("timeNote_create");
             $database->timeEntry_create($data);
         }
+        echo json_encode(array('errors' => $errors));
+        break;
+
+    case 'add_weekday':
+        $action = 'add';
+        $errors = array();
+        $project = $_REQUEST['project'];
+
+        $project['start'] = date($_REQUEST['date']);
+        $project['duration'] = $_REQUEST['duration'];
+        $project['end'] = $project['start'] + $project['duration'];
+
+        var_dump($project);
+
+        if (!weeksheetAccessAllowed($project, $action, $errors)) {
+          echo json_encode(array('errors'=>$errors));
+          //$database->transaction_rollback();
+          break;
+        }
+
+        $createdId = $database->timeEntry_create($data);
+        if (!$createdId) {
+            $errors[''] = $kga['lang']['error'];
+        }
+
+        //$database->transaction_end();
+        echo json_encode(array('errors' => $errors));
+        break;
+
+    case 'update_weekday':
+        //$database->transaction_begin();
+        $action = 'edit';
+        $errors = array();
+
+        foreach ($_REQUEST['entries'] as $entry) {
+            $data = $database->timeSheet_get_data($entry['id']);
+            $errors = array();
+
+            if (!weeksheetAccessAllowed($data, $action, $errors)) {
+              echo json_encode(array('errors'=>$errors));
+              //$database->transaction_rollback();
+              break 2;
+            }
+
+            $data['duration'] = $entry['duration'];
+            $data['end'] = $data['start'] + $data['duration'];
+
+            Kimai_Logger::logfile("timeEntry_create");
+            $createdId = $database->timeEntry_edit($entry['id'], $data);
+            if (!$createdId) {
+              $errors[''] = $kga['lang']['error'];
+            }
+
+            if (isset($entry['deleted']) && $entry['deleted']) {
+                $action = 'delete';
+                if (!weeksheetAccessAllowed($data, $action, $errors)) {
+                  echo json_encode(array('errors'=>$errors));
+                  //$database->transaction_rollback();
+                  break 2;
+                }
+                $deletedId = $database->timeEntry_delete($entry['id']);
+                if (!$deletedId) {
+                  $errors[''] = $kga['lang']['error'];
+                  echo json_encode(array('errors' => $errors));
+                  //$database->transaction_rollback();
+                  break 2;
+                }
+            }
+        }
+
+        //$database->transaction_end();
+
         echo json_encode(array('errors' => $errors));
         break;
 }

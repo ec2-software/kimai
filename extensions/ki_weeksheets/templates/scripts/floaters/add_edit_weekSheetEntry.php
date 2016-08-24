@@ -68,7 +68,7 @@
                                 'class' => 'formfield',
                                 'style' => 'width:400px',
                                 'tabindex' => '3',
-                                'onChange' => "getBestRates();"
+                                'onChange' => "getBestRatesWeeksheet();"
                             ), $this->activities); ?>
                             <br/>
                             <input type="text" style="width:395px;margin-top:3px" tabindex="4" size="10" name="filter" id="filter" onkeyup="filter_selects('add_edit_weekSheetEntry_activityID', this.value);"/>
@@ -95,7 +95,7 @@
                         -
                         <input id='end_time' type='text' name='end_time' value='<?php echo $this->escape($this->end_time) ?>' maxlength='8' size='8' tabindex='9'
                                onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
-                        <a id="currentTime" href="#" onclick="pasteNow(); ws_timeToDuration(); $(this).blur(); return false;"><?php echo $this->kga['lang']['now'] ?></a>
+                        <a id="currentTime" href="#" onclick="pasteNowWeeksheet(); ws_timeToDuration(); $(this).blur(); return false;"><?php echo $this->kga['lang']['now'] ?></a>
                     </li>
                     <li>
                         <label for="duration"><?php echo $this->kga['lang']['durationlabel'] ?>:</label>
@@ -228,7 +228,7 @@
         // only save the value, the update will happen automatically because we trigger a changed
         // activity on "edit_out_time"
         $('#currentTime, #end_day, #start_day').click(function () {
-            saveDuration();
+            saveDurationWeeksheet();
         });
 
         $("#approved").focus(function () {
@@ -256,10 +256,10 @@
 
         // #rate already has an activity on click, so treat it below
         $("#eduration, #eend_time, #start_time").focus(function () {
-            saveDuration();
+            saveDurationWeeksheet();
         }).change(function () {
-            updateDuration();
-            generateChart();
+            updateDurationWeeksheet();
+            generateChartWeeksheet();
             return false;
         });
 
@@ -267,7 +267,7 @@
             previousBudget = this.value;
         }).change(function () {
             $('#activityBudget').text(parseFloat($('#activityBudget').text()) - previousBudget + $(this).val());
-            generateChart();
+            generateChartWeeksheet();
             return false;
         });
 
@@ -287,12 +287,12 @@
 
         <?php if ($this->showRate): ?>
         $("#rate").click(function () {
-            saveDuration();
+            saveDurationWeeksheet();
             $("#rate").autocomplete("search", 0);
         });
 
         $("#rate").change(function () {
-            updateDuration();
+            updateDurationWeeksheet();
         });
 
         $("#rate").autocomplete({
@@ -493,7 +493,7 @@
         }
         <?php if (isset($this->id)) { ?>
         //TODO: chart will not be generated..WHY??
-        //generateChart();
+        //generateChartWeeksheet();
         <?php } ?>
     });
     // document ready
