@@ -16,6 +16,8 @@
  * along with Kimai; If not, see <http://www.gnu.org/licenses/>.
  */
 
+ var ws_active_box;
+
 /**
  * Javascript functions used in the weeksheet extension.
  */
@@ -70,10 +72,10 @@ function ws_ext_on_input_change_sum_entries(entries) {
 
 function ws_ext_on_input_change_process_entries_values(entries, newValue) {
 	var sum = ws_ext_on_input_change_sum_entries(entries);
+	var requiredDifference = sum - newValue;
 	// Calculate the new values
 	if (newValue == sum) return;
 	if (newValue < sum) {
-		var requiredDifference = sum - newValue;
 		for (var i = 0; i < entries.length && requiredDifference > 0; i++) {
 			if (entries[i].duration > requiredDifference) {
 				entries[i].duration -= requiredDifference;
@@ -88,24 +90,23 @@ function ws_ext_on_input_change_process_entries_values(entries, newValue) {
 		entries[0].duration += newValue - sum;
 	}
 
-	// Check for mistakes
-	var newSum = ws_ext_on_input_change_sum_entries(entries);
-	if (newValue != newSum) {
-		throw "Invalid logic new sum is " + newSum + " it should be " + newValue;
-	}
+	requiredDifference = newValue - sum;
 
 	// Make sure there is one non-deleted entry
 	for (var i = 0; i < entries.length; i++) {
-		if (!entries[i].deleted) return;
+		if (!entries[i].deleted) return requiredDifference;
 	}
 	entries[0].deleted = false;
+	return requiredDifference;
 }
 
 function ws_ext_on_input_change(e) {
 	// Parse the data
 	var entries = JSON.parse(e.target.dataset.entries);
-	var newValue = parseInt(e.target.value);
+	var newValue = parseFloat(e.target.value);
 	if (isNaN(newValue)) newValue = 0;
+
+	ws_active_box = e.target.id;
 
 	if (!entries) {
 		return $.post(ws_ext_path + "processor.php", {
@@ -116,7 +117,7 @@ function ws_ext_on_input_change(e) {
 		}, ws_ext_reload);
 	}
 
-	ws_ext_on_input_change_process_entries_values(entries, newValue);
+	var diff = ws_ext_on_input_change_process_entries_values(entries, newValue);
 
 	// Submit the new values to the server
 	$.post(ws_ext_path + "processor.php", {
@@ -270,7 +271,7 @@ function weeksheet_extension_activities_changed() {
  * reloads weeksheet, customer, project and activity tables
  */
 function ws_ext_reload() {
-	$.post(ws_ext_path + "processor.php", {
+	return $.post(ws_ext_path + "processor.php", {
 		axAction: "reload_weekSheet",
 		axValue: filterUsers.join(":") + '|' + filterCustomers.join(":") + '|' + filterProjects.join(":") + '|' + filterActivities.join(":"),
 		id: 0,
@@ -281,6 +282,10 @@ function ws_ext_reload() {
 
 		ws_ext_set_TableWidths();
 		ws_ext_applyHoverIntent();
+
+		if (ws_active_box) {
+			document.getElementById(ws_active_box).focus();
+		}
 	});
 }
 

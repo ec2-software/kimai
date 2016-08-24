@@ -617,7 +617,7 @@ switch ($axAction) {
         $data = $_REQUEST['project'];
 
         $data['start'] = strtotime($_REQUEST['date']);
-        $data['duration'] = $_REQUEST['duration'];
+        $data['duration'] = $_REQUEST['duration'] * 3600;
         $data['end'] = $data['start'] + $data['duration'];
 
         if (!weeksheetAccessAllowed($data, $action, $errors)) {
@@ -652,7 +652,7 @@ switch ($axAction) {
               break 2;
             }
 
-            $data['duration'] = $entry['duration'];
+            $data['duration'] = $entry['duration'] * 3600;
             $data['end'] = $data['start'] + $data['duration'];
 
             Kimai_Logger::logfile("timeEntry_create");

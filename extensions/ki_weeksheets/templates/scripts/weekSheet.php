@@ -7,6 +7,11 @@ $in->setTimeStamp($timeframe[0]);
 $out->setTimeStamp($timeframe[1]);
 $oneDay = new DateInterval('P1D');
 
+function formatHours($hours) {
+    if (!$hours) return '';
+    return round($hours / 3600, 2);
+}
+
 if ($this->weekSheetEntries)
 {
     ?>
@@ -81,14 +86,13 @@ if ($this->weekSheetEntries)
       $projects[$id] = $entry;
     }
 
-    foreach ($projects as $project)
+    foreach ($projects as $key => $project)
     { ?>
       <tr>
           <td class="project">
             <?php echo "$project[projectName] ($project[customerName]) - $project[activityName]"; ?>
           </td>
           <?php
-
 
           for ($day = clone $in; $day <= $out; $day->add($oneDay))
           {
@@ -101,7 +105,8 @@ if ($this->weekSheetEntries)
               ?>
               <td class="date">
                   <input type="number"
-                    value="<?php if ($entry['total']) echo $entry['total']; ?>"
+                    id="<?php echo "input-$fdate-$key" ?>"
+                    value="<?php echo formatHours($entry['total']); ?>"
                     min="0"
                     max="24"
                     step=""
@@ -115,7 +120,9 @@ if ($this->weekSheetEntries)
           }
           ?>
 
-          <td class="total"><?php echo $project['total'] ?></td>
+          <td class="total" id="<?php echo "sum-$key"; ?>">
+              <?php echo formatHours($project['total']); ?>
+          </td>
       </tr>
     <?php } ?>
 
@@ -129,13 +136,13 @@ if ($this->weekSheetEntries)
         for ($day = clone $in; $day <= $out; $day->add($oneDay))
         {
             $fdate = $day->format('Y-m-d');
-            echo '<td class="date">';
-            if ($dayTotals[$fdate]) echo $dayTotals[$fdate];
+            echo '<td id="sum-' . $date . '" class="date">';
+            echo formatHours($dayTotals[$fdate]);
             echo '</td>';
         }
         ?>
 
-        <td class="total"><?php echo $project['total'] ?></td>
+        <td class="total"><?php echo formatHours($project['total']); ?></td>
     </tr>
                 </tbody>
             </table>
