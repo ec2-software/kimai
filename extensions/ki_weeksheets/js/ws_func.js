@@ -60,35 +60,16 @@ function ws_ext_copy_previous_week() {
 	console.log("I do nothing");
 }
 
-function ws_ext_on_input_change(e) {
-	// Parse the data
-	var entries = JSON.parse(e.target.dataset.entries);
-	var project = JSON.parse(e.target.dataset.project);
-	var day = e.target.dataset.day;
-	var newValue = parseInt(e.target.value);
-
-	if (!entries) {
-		$.post(ws_ext_path + "processor.php", {
-			axAction: "add_weekday",
-			day: day,
-			duration: newValue,
-			project: project,
-		}, function(data) {
-			console.log(data);
-			ws_ext_reload();
-		});
-		return;
-	}
-	
-	var sum = entries
-	.map(function(a) {
+function ws_ext_on_input_change_sum_entries(entries) {
+	return entries.map(function(a) {
 		return a.duration;
 	}).reduce(function(a, b){
 		return a + b;
 	}, 0);
+}
 
-	if (isNaN(newValue)) newValue = 0;
-
+function ws_ext_on_input_change_process_entries_values(entries, newValue) {
+	var sum = ws_ext_on_input_change_sum_entries(entries);
 	// Calculate the new values
 	if (newValue == sum) return;
 	if (newValue < sum) {
@@ -98,7 +79,7 @@ function ws_ext_on_input_change(e) {
 				entries[i].duration -= requiredDifference;
 				requiredDifference = 0;
 			} else {
-				//entries[i].deleted = true;
+				entries[i].deleted = true;
 				requiredDifference -= entries[i].duration;
 				entries[i].duration = 0;
 			}
@@ -106,26 +87,42 @@ function ws_ext_on_input_change(e) {
 	} else {
 		entries[0].duration += newValue - sum;
 	}
-	var newSum = entries
-	.map(function(a) {
-		return a.duration;
-	}).reduce(function(a, b){
-		return a + b;
-	}, 0);
+
+	// Check for mistakes
+	var newSum = ws_ext_on_input_change_sum_entries(entries);
 	if (newValue != newSum) {
 		throw "Invalid logic new sum is " + newSum + " it should be " + newValue;
 	}
 
+	// Make sure there is one non-deleted entry
+	for (var i = 0; i < entries.length; i++) {
+		if (!entries[i].deleted) return;
+	}
+	entries[0].deleted = false;
+}
 
+function ws_ext_on_input_change(e) {
+	// Parse the data
+	var entries = JSON.parse(e.target.dataset.entries);
+	var newValue = parseInt(e.target.value);
+	if (isNaN(newValue)) newValue = 0;
+
+	if (!entries) {
+		return $.post(ws_ext_path + "processor.php", {
+			axAction: "add_weekday",
+			date: e.target.dataset.date,
+			duration: newValue,
+			project: JSON.parse(e.target.dataset.project),
+		}, ws_ext_reload);
+	}
+
+	ws_ext_on_input_change_process_entries_values(entries, newValue);
 
 	// Submit the new values to the server
 	$.post(ws_ext_path + "processor.php", {
 		axAction: "update_weekday",
 		entries: entries,
-	}, function(data) {
-		console.log(data);
-		ws_ext_reload();
-	});
+	}, ws_ext_reload);
 }
 
 /**

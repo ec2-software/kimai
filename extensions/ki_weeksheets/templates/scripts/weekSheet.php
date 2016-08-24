@@ -85,9 +85,7 @@ if ($this->weekSheetEntries)
     { ?>
       <tr>
           <td class="project">
-            <?php
-              echo $project['customerName'] . ' ' . $project['projectName'];
-            ?>
+            <?php echo "$project[projectName] ($project[customerName]) - $project[activityName]"; ?>
           </td>
           <?php
 
@@ -105,9 +103,11 @@ if ($this->weekSheetEntries)
                   <input type="number"
                     value="<?php if ($entry['total']) echo $entry['total']; ?>"
                     min="0"
+                    max="24"
+                    step=""
                     data-entries="<?php echo htmlspecialchars(json_encode($entry['entries'])); ?>"
                     data-project="<?php echo htmlspecialchars(json_encode($project)); ?>"
-                    data-project="<?php echo htmlspecialchars($fdate); ?>"
+                    data-date="<?php echo htmlspecialchars($fdate); ?>"
                     onchange="ws_ext_on_input_change(event)"
                     />
               </td>
@@ -119,7 +119,7 @@ if ($this->weekSheetEntries)
       </tr>
     <?php } ?>
 
-    <tr>
+    <tr class="day-totals">
         <td class="project">
           Totals
         </td>
@@ -130,7 +130,7 @@ if ($this->weekSheetEntries)
         {
             $fdate = $day->format('Y-m-d');
             echo '<td class="date">';
-            echo $dayTotals[$fdate];
+            if ($dayTotals[$fdate]) echo $dayTotals[$fdate];
             echo '</td>';
         }
         ?>

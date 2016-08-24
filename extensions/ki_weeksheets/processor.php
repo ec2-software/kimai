@@ -614,23 +614,23 @@ switch ($axAction) {
     case 'add_weekday':
         $action = 'add';
         $errors = array();
-        $project = $_REQUEST['project'];
+        $data = $_REQUEST['project'];
 
-        $project['start'] = date($_REQUEST['date']);
-        $project['duration'] = $_REQUEST['duration'];
-        $project['end'] = $project['start'] + $project['duration'];
+        $data['start'] = strtotime($_REQUEST['date']);
+        $data['duration'] = $_REQUEST['duration'];
+        $data['end'] = $data['start'] + $data['duration'];
 
-        var_dump($project);
-
-        if (!weeksheetAccessAllowed($project, $action, $errors)) {
+        if (!weeksheetAccessAllowed($data, $action, $errors)) {
           echo json_encode(array('errors'=>$errors));
-          //$database->transaction_rollback();
           break;
         }
+
+        //var_dump($data);
 
         $createdId = $database->timeEntry_create($data);
         if (!$createdId) {
             $errors[''] = $kga['lang']['error'];
+            //$errors[] = $database->conn->Error();
         }
 
         //$database->transaction_end();
