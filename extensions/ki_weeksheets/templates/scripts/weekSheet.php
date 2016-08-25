@@ -31,6 +31,7 @@ if ($this->weekSheetEntries)
                     <td class="date <?php if ($day->format('N') >= 6) echo "weekend"; ?>"><?php echo $day->format('D j'); ?></td>
                 <?php endfor; ?>
                 <td class="total"><?php echo $this->kga['lang']['total'] ?></td>
+                <td class="delete"></td>
             </th>
 
     <?php
@@ -88,7 +89,7 @@ if ($this->weekSheetEntries)
 
     foreach ($projects as $key => $project)
     { ?>
-      <tr>
+      <tr class="project-row">
           <td class="project">
             <?php echo "$project[projectName] ($project[customerName]) - $project[activityName]"; ?>
           </td>
@@ -123,6 +124,7 @@ if ($this->weekSheetEntries)
           <td class="total" id="<?php echo "sum-$key"; ?>">
               <?php echo formatHours($project['total']); ?>
           </td>
+          <td class="delete"><a href="#" onclick="ws_ext_delete_project(event)">Delete</a></td>
       </tr>
     <?php } ?>
 
@@ -143,6 +145,7 @@ if ($this->weekSheetEntries)
         ?>
 
         <td class="total"><?php echo formatHours($project['total']); ?></td>
+        <td class="delete"></td>
     </tr>
                 </tbody>
             </table>

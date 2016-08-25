@@ -6,7 +6,7 @@ $in->setTimeStamp($timeframe[0]);
 $out->setTimeStamp($timeframe[1]);
 $oneDay = new DateInterval('P1D');
  ?>
-<div id="weekSheet_head" class="ext ki_weeksheet">
+<div id="weekSheet_head">
     <div class="left">
         <?php if (isset($this->kga['user'])): ?>
             <a href="#" onclick="floaterShow('../extensions/ki_weeksheets/floaters.php','add_edit_weekSheetEntry',selected_project+'|'+selected_activity,0,650); $(this).blur(); return false;"><?php echo $this->kga['lang']['add'] ?></a>

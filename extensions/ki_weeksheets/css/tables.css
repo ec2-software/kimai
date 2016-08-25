@@ -114,7 +114,14 @@ div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     width:300px;
 }
 
-
+.day-totals .date,
+.project-row .total,
+.day-totals .total {
+    background-color: #DDD;
+    border: 2px #bbb solid;
+    text-align: center;
+    padding: 2px 0;
+}
 
 div#weekSheet_head div.left
 {

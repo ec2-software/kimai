@@ -106,8 +106,6 @@ function ws_ext_on_input_change(e) {
 	var newValue = parseFloat(e.target.value);
 	if (isNaN(newValue)) newValue = 0;
 
-	ws_active_box = e.target.id;
-
 	if (!entries) {
 		return $.post(ws_ext_path + "processor.php", {
 			axAction: "add_weekday",
@@ -123,6 +121,33 @@ function ws_ext_on_input_change(e) {
 	$.post(ws_ext_path + "processor.php", {
 		axAction: "update_weekday",
 		entries: entries,
+	}, ws_ext_reload);
+}
+
+
+function ws_ext_delete_project(e) {
+	if (!confirm("Are you sure you want to delete all entries for this project?")) return;
+
+	var row = e.target;
+	while (!row.classList.contains('project-row')) {
+		row = row.parentElement;
+	}
+
+	var allEntries = [];
+
+	$(row).find('input').each(function(index, input) {
+		var entries = JSON.parse(input.dataset.entries);
+		if (!entries) return;
+		allEntries.push(...entries);
+	});
+
+	allEntries.forEach(function(entry) {
+		entry.deleted = true;
+	});
+
+	$.post(ws_ext_path + "processor.php", {
+		axAction: "update_weekday",
+		entries: allEntries,
 	}, ws_ext_reload);
 }
 
@@ -212,23 +237,7 @@ function ws_ext_set_TableWidths() {
 
 function weeksheet_extension_tab_changed() {
 	$('#display_total').html(ws_total);
-	if (weeksheet_timeframe_changed_hook_flag) {
-		ws_ext_reload();
-		weeksheet_customers_changed_hook_flag = 0;
-		weeksheet_projecws_changed_hook_flag = 0;
-		weeksheet_activities_changed_hook_flag = 0;
-	}
-	if (weeksheet_customers_changed_hook_flag) {
-		weeksheet_extension_customers_changed();
-		weeksheet_projecws_changed_hook_flag = 0;
-		weeksheet_activities_changed_hook_flag = 0;
-	}
-	if (weeksheet_projecws_changed_hook_flag) {
-		weeksheet_extension_projecws_changed();
-	}
-	if (weeksheet_activities_changed_hook_flag) {
-		weeksheet_extension_activities_changed();
-	}
+	ws_ext_reload();
 
 	weeksheet_timeframe_changed_hook_flag = 0;
 	weeksheet_customers_changed_hook_flag = 0;
@@ -271,7 +280,7 @@ function weeksheet_extension_activities_changed() {
  * reloads weeksheet, customer, project and activity tables
  */
 function ws_ext_reload() {
-	return $.post(ws_ext_path + "processor.php", {
+	$.post(ws_ext_path + "processor.php", {
 		axAction: "reload_weekSheet",
 		axValue: filterUsers.join(":") + '|' + filterCustomers.join(":") + '|' + filterProjects.join(":") + '|' + filterActivities.join(":"),
 		id: 0,
@@ -283,10 +292,15 @@ function ws_ext_reload() {
 		ws_ext_set_TableWidths();
 		ws_ext_applyHoverIntent();
 
-		if (ws_active_box) {
-			document.getElementById(ws_active_box).focus();
-		}
+		setTimeout(function() {
+			$('#' + ws_active_box).focus().select();;
+		},0);
+
 	});
+
+	setTimeout(function() {
+		ws_active_box = document.activeElement.id;
+	},0);
 }
 
 /**

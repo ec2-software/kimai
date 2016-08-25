@@ -79,29 +79,6 @@
                         <textarea tabindex="5" style="width:395px" cols='40' rows='5' name="description" id="description"><?php echo $this->escape($this->description) ?></textarea>
                     </li>
 
-                    <li>
-                        <label for="start_day"><?php echo $this->kga['lang']['day'] ?>:</label>
-                        <input id='start_day' type='text' name='start_day' value='<?php echo $this->escape($this->start_day) ?>' maxlength='10' size='10' tabindex='6'
-                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
-                        -
-                        <input id='end_day' type='text' name='end_day' value='<?php echo $this->escape($this->end_day) ?>' maxlength='10' size='10' tabindex='7'
-                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
-                    </li>
-                    <li>
-                        <label for="start_time"><?php echo $this->kga['lang']['timelabel'] ?>:</label>
-                        <input id='start_time' type='text' name='start_time'
-                               value='<?php echo $this->escape($this->start_time) ?>' maxlength='8' size='8' tabindex='8'
-                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
-                        -
-                        <input id='end_time' type='text' name='end_time' value='<?php echo $this->escape($this->end_time) ?>' maxlength='8' size='8' tabindex='9'
-                               onChange="ws_timeToDuration();" <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();" <?php endif; ?> />
-                        <a id="currentTime" href="#" onclick="pasteNowWeeksheet(); ws_timeToDuration(); $(this).blur(); return false;"><?php echo $this->kga['lang']['now'] ?></a>
-                    </li>
-                    <li>
-                        <label for="duration"><?php echo $this->kga['lang']['durationlabel'] ?>:</label>
-                        <input id='duration' type='text' name='duration' value='' onChange="ws_durationToTime();" maxlength='8' size='8'
-                               tabindex='10' <?php if ($this->kga['conf']['autoselection']): ?> onclick="this.select();"<?php endif; ?> />
-                    </li>
                 </ul>
             </fieldset>
             <fieldset id="extended">
