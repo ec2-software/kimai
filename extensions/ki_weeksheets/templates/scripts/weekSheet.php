@@ -12,6 +12,62 @@ function formatHours($hours) {
     return round($hours / 3600, 2);
 }
 
+if (!function_exists('weeksheetAccessAllowed')) {
+
+    function weeksheetAccessAllowed($entry, $action, &$errors) {
+        global $database, $kga;
+
+      if (!isset($kga['user'])) {
+        $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+        return false;
+      }
+
+
+      if ($kga['conf']['editLimit'] != "-" && time() - $entry['end'] > $kga['conf']['editLimit'] && $entry['end'] != 0) {
+        $errors[''] = $kga['lang']['editLimitError'];
+        return;
+      }
+
+
+      $groups = $database->getGroupMemberships($entry['userID']);
+
+      if ($entry['userID'] == $kga['user']['userID']) {
+        $permissionName = 'ki_timesheets-ownEntry-' . $action;
+        if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
+          return true;
+        } else {
+          Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
+          $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+          return false;
+        }
+      }
+
+      $assignedOwnGroups = array_intersect($groups, $database->getGroupMemberships($kga['user']['userID']));
+
+      if (count($assignedOwnGroups) > 0) {
+        $permissionName = 'ki_timesheets-otherEntry-ownGroup-' . $action;
+        if ($database->checkMembershipPermission($kga['user']['userID'], $assignedOwnGroups, $permissionName)) {
+          return true;
+        } else {
+          Kimai_Logger::logfile("missing membership permission $permissionName of own group(s) " . implode(", ", $assignedOwnGroups) . " for user " . $kga['user']['name']);
+          $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+          return false;
+        }
+
+      }
+
+      $permissionName = 'ki_timesheets-otherEntry-otherGroup-' . $action;
+      if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
+        return true;
+      } else {
+        Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
+        $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+        return false;
+      }
+
+    }
+}
+
 if ($this->weekSheetEntries)
 {
     ?>
@@ -115,17 +171,25 @@ if ($this->weekSheetEntries)
               $entry = $project[$fdate];
               ?>
               <td class="date">
-                  <input type="number"
-                    id="<?php echo "input-$fdate-$key" ?>"
-                    value="<?php echo formatHours($entry['total']); ?>"
-                    min="0"
-                    max="24"
-                    step=""
-                    data-entries="<?php echo htmlspecialchars(json_encode($entry['entries'])); ?>"
-                    data-project="<?php echo htmlspecialchars(json_encode($project)); ?>"
-                    data-date="<?php echo htmlspecialchars($fdate); ?>"
-                    onchange="ws_ext_on_input_change(event)"
-                    />
+                  <?php
+                  $errors = array();
+                  if (weeksheetAccessAllowed($entry, 'edit', $errors)) {
+                      ?>
+                      <input type=""
+                        id="<?php echo "input-$fdate-$key" ?>"
+                        value="<?php echo formatHours($entry['total']); ?>"
+                        min="0"
+                        max="24"
+                        step=""
+                        data-entries="<?php echo htmlspecialchars(json_encode($entry['entries'])); ?>"
+                        data-project="<?php echo htmlspecialchars(json_encode($project)); ?>"
+                        data-date="<?php echo htmlspecialchars($fdate); ?>"
+                        onchange="ws_ext_on_input_change(event)"
+                        />
+                      <?php
+                  } else {
+                      echo $entry['total'];
+                  } ?>
               </td>
               <?php
           }

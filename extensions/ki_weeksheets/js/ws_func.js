@@ -90,16 +90,12 @@ function ws_ext_jump_days(x) {
 	setTimeframe(startDate, endDate);
 }
 
-function ws_ext_on_input_change_sum_entries(entries) {
-	return entries.map(function(a) {
+function ws_ext_on_input_change_process_entries_values(entries, newValue) {
+	var sum = entries.map(function(a) {
 		return a.duration;
 	}).reduce(function(a, b){
 		return a + b;
 	}, 0);
-}
-
-function ws_ext_on_input_change_process_entries_values(entries, newValue) {
-	var sum = ws_ext_on_input_change_sum_entries(entries);
 	var requiredDifference = sum - newValue;
 	// Calculate the new values
 	if (newValue == sum) return;

@@ -126,7 +126,7 @@ div.ki_weeksheets>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     border: none;
     background: transparent;
     margin: 0;
-    padding: 0 4px;
+    padding: 0;
 }
 
 #weekSheet_head td.project,
