@@ -127,8 +127,18 @@ function ws_ext_on_input_change_process_entries_values(entries, newValue) {
 function ws_ext_on_input_change(e) {
 	// Parse the data
 	var entries = JSON.parse(e.target.dataset.entries);
-	var newValue = parseFloat(e.target.value);
-	if (isNaN(newValue)) newValue = 0;
+	var newValue = 0;
+
+	var divider = 1;
+	e.target.value.split(':').forEach(function(c) {
+		if (!c) return 0;
+		c = parseFloat(c);
+		if (isNaN(c)) {
+			alert('Inavlid time');
+		}
+		newValue += c / divider;
+		divider *= 60;
+	});
 
 	if (!entries) {
 		return $.post(ws_ext_path + "processor.php", {

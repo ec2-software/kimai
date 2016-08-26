@@ -81,18 +81,6 @@ switch ($axAction) {
 
         $view->assign('userID', $weekSheetEntry['userID']);
 
-        $view->assign('start_day', date("d.m.Y", $weekSheetEntry['start']));
-        $view->assign('start_time', date("H:i:s", $weekSheetEntry['start']));
-
-        if ($weekSheetEntry['end'] == 0) {
-          $view->assign('end_day', '');
-          $view->assign('end_time', '');
-        }
-        else {
-          $view->assign('end_day', date("d.m.Y", $weekSheetEntry['end']));
-          $view->assign('end_time', date("H:i:s", $weekSheetEntry['end']));
-        }
-
         $view->assign('approved', $weekSheetEntry['approved']);
         $view->assign('budget', $weekSheetEntry['budget']);
 
@@ -136,55 +124,7 @@ switch ($axAction) {
 
         $view->assign('users', $users);
 
-        $view->assign('start_day', date("d.m.Y"));
-        $view->assign('end_day', date("d.m.Y"));
-
         $view->assign('userID', $kga['user']['userID']);
-
-        if ($kga['user']['lastRecord'] != 0 && $kga['conf']['roundTimesheetEntries'] != '') {
-          $weekSheetData = $database->timeSheet_get_data($kga['user']['lastRecord']);
-          $minutes = date('i');
-          if ($kga['conf']['roundMinutes'] < 60) {
-            if ($kga['conf']['roundMinutes'] <= 0) {
-                    $minutes = 0;
-            } else {
-              while ($minutes % $kga['conf']['roundMinutes'] != 0) {
-                if ($minutes >= 60) {
-                  $minutes = 0;
-                } else {
-                  $minutes++;
-                }
-              }
-            }
-          }
-          $seconds = date('s');
-          if ($kga['conf']['roundSeconds'] < 60) {
-            if ($kga['conf']['roundSeconds'] <= 0) {
-                    $seconds = 0;
-            } else {
-              while ($seconds % $kga['conf']['roundSeconds'] != 0) {
-                if ($seconds >= 60) {
-                  $seconds = 0;
-                } else {
-                  $seconds++;
-                }
-              }
-            }
-          }
-          $end = mktime(date("H"), $minutes, $seconds);
-          $day = date("d");
-          $dayEntry = date("d", $weekSheetData['end']);
-
-          if ($day == $dayEntry) {
-                  $view->assign('start_time', date("H:i:s", $weekSheetData['end']));
-          } else {
-                  $view->assign('start_time', date("H:i:s"));
-          }
-          $view->assign('end_time', date("H:i:s", $end));
-        } else {
-          $view->assign('start_time', date("H:i:s"));
-          $view->assign('end_time', date("H:i:s"));
-        }
 
         $view->assign('location', $kga['conf']['defaultLocation']);
         $view->assign('showRate', $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-editRates'));
@@ -211,66 +151,4 @@ switch ($axAction) {
     echo $view->render("floaters/add_edit_weekSheetEntry.php");
 
     break;
-
-
-    case "add_edit_weekSheetQuickNote":
-        if (isset($kga['customer'])) die();
-        // ================================================
-        // = display edit dialog for weeksheet quick note =
-        // ================================================
-        $selected = explode('|', $axValue);
-
-        $view->assign('projects', makeSelectBox("project", $kga['user']['groups']));
-        $view->assign('activities', makeSelectBox("activity", $kga['user']['groups']));
-
-        if ($id) {
-            $weekSheetEntry = $database->timeSheet_get_data($id);
-            $view->assign('id', $id);
-            $view->assign('location', $weekSheetEntry['location']);
-
-            // check if this entry may be edited
-            if ($weekSheetEntry['userID'] == $kga['user']['userID']) {
-                if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-ownEntry-edit')) {
-                    break;
-                }
-            } elseif ($database->is_watchable_user($kga['user'], $weekSheetEntry['userID'])) {
-                if (!$database->checkMembershipPermission($kga['user']['userID'], $database->getGroupMemberships($weekSheetEntry['userID']), 'ki_weeksheets-otherEntry-ownGroup-edit')) {
-                    break;
-                }
-            } elseif (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-otherEntry-otherGroup-edit')) {
-                break;
-            }
-
-            // set list of users to what the user may do
-            $users = array();
-            if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-otherEntry-otherGroup-edit')) {
-                $users = makeSelectBox("allUser", $kga['user']['groups']);
-            } elseif ($database->checkMembershipPermission($kga['user']['userID'], $database->getGroupMemberships($kga['user']['userID']), 'ki_weeksheets-otherEntry-ownGroup-edit')) {
-                $users = makeSelectBox("sameGroupUser", $kga['user']['groups']);
-                if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-ownEntry-edit')) {
-                    $users[$kga['user']['userID']] = $kga['user']['name'];
-                }
-            }
-
-            $view->assign('users', $users);
-
-            $view->assign('trackingNumber', $weekSheetEntry['trackingNumber']);
-            $view->assign('description', $weekSheetEntry['description']);
-            $view->assign('comment', $weekSheetEntry['comment']);
-
-            $view->assign('commentType', $weekSheetEntry['commentType']);
-            $view->assign('cleared', $weekSheetEntry['cleared'] != 0);
-
-            $view->assign('userID', $weekSheetEntry['userID']);
-
-            $view->assign('projectID', $weekSheetEntry['projectID']);
-            $view->assign('activityID', $weekSheetEntry['activityID']);
-
-            $view->assign('commentType', $weekSheetEntry['commentType']);
-            $view->assign('statusID', $weekSheetEntry['statusID']);
-            $view->assign('billable_active', $weekSheetEntry['billable']);
-        }
-        echo $view->render("floaters/add_edit_weekSheetQuickNote.php");
-
-        break;
 }

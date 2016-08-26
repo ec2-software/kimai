@@ -7,9 +7,17 @@ $in->setTimeStamp($timeframe[0]);
 $out->setTimeStamp($timeframe[1]);
 $oneDay = new DateInterval('P1D');
 
-function formatHours($hours) {
-    if (!$hours) return '';
-    return round($hours / 3600, 2);
+function formatHours($seconds) {
+    if (!$seconds) return '';
+    return round($seconds / 3600, 2);
+}
+function formatTime($seconds) {
+    if (!$seconds) return '';
+    $hours = floor($seconds / 3600);
+    $mins = floor(($seconds - ($hours * 3600)) / 60);
+    if ($mins == 0) return $hours;
+    if ($mins < 10) $mins = '0'.$mins;
+    return "$hours:$mins";
 }
 
 if (!function_exists('weeksheetAccessAllowed')) {
@@ -177,7 +185,7 @@ if ($this->weekSheetEntries)
                       ?>
                       <input type=""
                         id="<?php echo "input-$fdate-$key" ?>"
-                        value="<?php echo formatHours($entry['total']); ?>"
+                        value="<?php echo formatTime($entry['total']); ?>"
                         min="0"
                         max="24"
                         step=""

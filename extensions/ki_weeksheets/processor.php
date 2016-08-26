@@ -480,48 +480,6 @@ switch ($axAction) {
       echo json_encode(array('errors'=>$errors));
       break;
 
-    // ===================================
-    // = add / edit weekSheet quick note =
-    // ===================================
-    case 'add_edit_weekSheetQuickNote':
-        header('Content-Type: application/json;charset=utf-8');
-        $errors = array();
-
-        $action = 'add';
-
-        if ($id) {
-            $action = 'edit';
-            $data = $database->timeSheet_get_data($id);
-
-            // check if editing or deleting with the old values would be allowed
-            if (!weeksheetAccessAllowed($data, $action, $errors)) {
-                echo json_encode(array('errors' => $errors));
-                break;
-            }
-        }
-
-        $data['location'] = $_REQUEST['location'];
-        $data['trackingNumber'] = isset($_REQUEST['trackingNumber']) ? $_REQUEST['trackingNumber'] : '';
-        $data['comment'] = $_REQUEST['comment'];
-        $data['commentType'] = $_REQUEST['commentType'];
-        $data['userID'] = $_REQUEST['userID'];
-
-        if (!weeksheetAccessAllowed($data, $action, $errors)) {
-            echo json_encode(array('errors' => $errors));
-            break;
-        }
-        if ($id) { // TIME RIGHT - NEW OR EDIT ?
-            // TIME RIGHT - EDIT ENTRY
-            Kimai_Logger::logfile("timeNote_edit: " . $id);
-            $database->timeEntry_edit($id, $data);
-        } else {
-            // TIME RIGHT - NEW ENTRY
-            Kimai_Logger::logfile("timeNote_create");
-            $database->timeEntry_create($data);
-        }
-        echo json_encode(array('errors' => $errors));
-        break;
-
     case 'add_weekday':
         $action = 'add';
         $errors = array();
