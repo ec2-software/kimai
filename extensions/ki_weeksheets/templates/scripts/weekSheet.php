@@ -9,7 +9,7 @@ $oneDay = new DateInterval('P1D');
 
 function formatHours($seconds) {
     if (!$seconds) return '';
-    return round($seconds / 3600, 2);
+    return round($seconds / 3600, 2) . ' h';
 }
 function formatTime($seconds) {
     if (!$seconds) return '';
