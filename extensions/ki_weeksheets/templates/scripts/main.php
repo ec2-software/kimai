@@ -13,13 +13,18 @@ $oneDay = new DateInterval('P1D');
         <?php endif; ?>
     </div>
     <table>
-        <colgroup>
-            <col class="options">
-        </colgroup>
         <tbody>
         <tr>
-            <td class="option">&nbsp;</td>
-            <td class="copy-previous"><a href="#" id="ws_ext_previous_week" onclick="ws_ext_copy_previous_week()">Copy Previous Week</a></td>
+            <td>&nbsp;</td>
+            <td>
+                <a href="#" id="ws_ext_previous_week" onclick="ws_ext_this_week()">Show This Week</a>
+                |
+                <a href="#" id="ws_ext_previous_week" onclick="ws_ext_copy_previous_week()">Show This and Last Week</a>
+            </td>
+            <td class="nav">
+                <a href="#" onclick="ws_ext_jump_days(-7)">Previous Week</a>
+                <a href="#" onclick="ws_ext_jump_days(7)">Next Week</a>
+            </td>
         </tr>
         </tbody>
     </table>

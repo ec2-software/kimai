@@ -36,7 +36,9 @@
     </div>
 
     <form id="ws_ext_form_add_edit_weekSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
-    <input type="hidden" name="id" value="<?php echo $this->id?>" />
+    <?php if ($this->id): foreach ($this->id as $id): ?>
+    <input type="hidden" name="id[]" value="<?php echo $id; ?>" />
+    <?php endforeach; endif; ?>
     <input type="hidden" name="axAction" value="add_edit_weekSheetEntry" />
 	<input type="hidden" id="stepMinutes" value="<?php echo $this->kga['conf']['roundMinutes']?>" />
 	<input type="hidden" id="stepSeconds" value="<?php echo $this->kga['conf']['roundSeconds']?>" />
@@ -248,20 +250,6 @@
             return false;
         });
 
-        $('#start_day').datepicker({
-            onSelect: function (dateText, instance) {
-                $('#end_day').datepicker("option", "minDate", $('#start_day').datepicker("getDate"));
-                ws_timeToDuration();
-            }
-        });
-
-        $('#end_day').datepicker({
-            onSelect: function (dateText, instance) {
-                $('#start_day').datepicker("option", "maxDate", $('#end_day').datepicker("getDate"));
-                ws_timeToDuration();
-            }
-        });
-
         <?php if ($this->showRate): ?>
         $("#rate").click(function () {
             saveDurationWeeksheet();
@@ -336,83 +324,7 @@
         $('#ws_ext_form_add_edit_weekSheetEntry').ajaxForm({
             'beforeSubmit': function () {
                 clearFloaterErrorMessages();
-                if (!$('#start_day').val().match(ws_dayFormatExp) ||
-                    ( !$('#end_day').val().match(ws_dayFormatExp) && $('#end_day').val() != '') || !$('#start_time').val().match(ws_timeFormatExp) ||
-                    ( !$('#end_time').val().match(ws_timeFormatExp) && $('#end_time').val() != '')) {
-                    alert("<?php echo $this->kga['lang']['TimeDateInputError']?>");
-                    return false;
-                }
-
-                var endTimeSet = $('#end_day').val() != '' || $('#end_time').val() != '';
-
-                if (!endTimeSet) {
-                    return true;
-                } // no need to validate timerange if end time is not set
-
-                // test if start day is before end day
-                var inDayMatches = $('#start_day').val().match(ws_dayFormatExp);
-                var outDayMatches = $('#end_day').val().match(ws_dayFormatExp);
-                for (var i = 3; i >= 1; i--) {
-                    var inVal = inDayMatches[i];
-                    var outVal = outDayMatches[i];
-
-                    inVal = parseInt(inVal);
-                    outval = parseInt(outVal);
-
-                    if (inVal == undefined) {
-                        inVal = 0;
-                    }
-                    if (outVal == undefined) {
-                        outVal = 0;
-                    }
-
-                    if (inVal > outVal) {
-                        alert("<?php $this->kga['lang']['StartTimeBeforeEndTime']?>");
-                        return false;
-                    }
-                    else if (inVal < outVal) {
-                        break;
-                    } // if this part is smaller we don't care for the other parts
-                }
-                if (inDayMatches[0] == outDayMatches[0]) {
-                    // test if start time is before end time if it's the same day
-                    var inTimeMatches = $('#start_time').val().match(ws_timeFormatExp);
-                    var outTimeMatches = $('#end_time').val().match(ws_timeFormatExp);
-                    for (var i = 1; i <= 3; i++) {
-                        var inVal = inTimeMatches[i];
-                        var outVal = outTimeMatches[i];
-
-                        if (inVal[0] == ":") {
-                            inVal = inVal.substr(1);
-                        }
-                        if (outVal[0] == ":") {
-                            outVal = outVal.substr(1);
-                        }
-
-                        inVal = parseInt(inVal);
-                        outval = parseInt(outVal);
-
-                        if (inVal == undefined) {
-                            inVal = 0;
-                        }
-                        if (outVal == undefined) {
-                            outVal = 0;
-                        }
-
-                        if (inVal > outVal) {
-                            alert("<?php echo $this->kga['lang']['StartTimeBeforeEndTime']?>");
-                            return false;
-                        }
-                        else if (inVal < outVal) {
-                            break;
-                        } // if this part is smaller we don't care for the other parts
-                    }
-                }
-
-                var edit_in_time = $('#start_day').val() + $('#start_time').val();
-                var edit_out_time = $('#end_day').val() + $('#end_time').val();
                 var deleted = $('#erase').is(':checked');
-
 
                 if ($('#ws_ext_form_add_edit_weekSheetEntry').attr('submitting')) {
                     return false;
@@ -423,6 +335,8 @@
                 }
             },
             'success': function (result) {
+                console.log(result);
+
                 $('#ws_ext_form_add_edit_weekSheetEntry').removeAttr('submitting');
                 for (var fieldName in result.errors) {
                     setFloaterErrorMessage(fieldName, result.errors[fieldName]);
@@ -444,33 +358,6 @@
         $("#add_edit_weekSheetEntry_projectID").val(selected_project);
         $("#add_edit_weekSheetEntry_activityID").val(selected_activity);
         ws_ext_reload_activities(selected_project);
-        <?php } ?>
-
-        ws_timeToDuration();
-        // ws_timeToDuration will set the value of duration. The first time, the value
-        // will be set and the duration is added to the budgetUsed eventhough it shouldn't
-        // so maually subtract the value again
-        var durationArray = new Array();
-        durationArray = $("#duration").val().split(/:|\./);
-        if (durationArray.length > 0 && durationArray.length < 4) {
-            secs = durationArray[0] * 3600;
-            if (durationArray.length > 1) {
-                secs += (durationArray[1] * 60);
-            }
-            if (durationArray.length > 2) {
-                secs += parseInt(durationArray[2]);
-            }
-            <?php if ($this->showRate): ?>
-            var rate = $('#rate').val();
-            <?php else: ?>
-            var rate = 0;
-            <?php endif; ?>
-            var budgetCalculatedTwice = secs / 3600 * rate;
-            $('#budget_activity_used').text(Math.round(parseFloat($('#budget_activity_used').text()) - budgetCalculatedTwice), 2);
-        }
-        <?php if (isset($this->id)) { ?>
-        //TODO: chart will not be generated..WHY??
-        //generateChartWeeksheet();
         <?php } ?>
     });
     // document ready

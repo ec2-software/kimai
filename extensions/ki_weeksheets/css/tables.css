@@ -1,33 +1,34 @@
 
-div.ki_weeksheet table {
+div.ki_weeksheets table {
     border-collapse: collapse;
     font-size: 11px;
     color: #363636;
     border-bottom:1px solid #888;
 }
-div.ki_weeksheet table a.preselect_lnk {
+div.ki_weeksheets table a.preselect_lnk {
     color: #363636;
     text-decoration:none;
     border-bottom:1px dotted #bbb;
 }
 
-div.ki_weeksheet table a:hover {
+div.ki_weeksheets table a:hover {
     color: #0F9E00;
     border-bottom:none;
 }
 
-div.ki_weeksheet table thead {
+div.ki_weeksheets table thead {
     height:25px;
     text-align:left;
     color:#FFF;
 }
 
-div.ki_weeksheet table thead th {
+div.ki_weeksheets table thead th {
     background-image: url('../../../skins/standard/grfx/g3_table_header.png');
 }
 
-div.ki_weeksheet tr.even td,
-div.ki_weeksheet tr.odd td
+div.ki_weeksheets tr.even td,
+div.ki_weeksheets tr.odd td,
+div.ki_weeksheets tr.odd th
 {
     border-bottom: none;
     border-left: none;
@@ -37,18 +38,34 @@ div.ki_weeksheet tr.odd td
 }
 #weekSheet_head td {padding: 3px 4px 4px 6px;}
 
-div.ki_weeksheet tr.hover td {
+#weekSheetTable .day-totals td {
+    border-top: 1px solid #888;
+}
+
+#weekSheetTable .header th {
+    border-bottom: 1px solid #888;
+}
+
+div.ki_weeksheets tr.hover td {
     background: #FFC !important;
 /*    border-top: 1px solid #666 !important;
     border-bottom: 1px solid #666 !important;*/
 }
 
-div.ki_weeksheet tr.even td {
+div.ki_weeksheets tr.even td {
     background: #FFF;
 }
 
-div.ki_weeksheet tr.odd td {
+div.ki_weeksheets tr.odd td {
     background: #EEE;
+}
+
+div.ki_weeksheets .total {
+    border-left: 1px solid #888;
+}
+
+div.ki_weeksheets .project {
+    border-right: 1px solid #888;
 }
 
 div#weekSheetTable tr td.time {
@@ -67,16 +84,7 @@ div#weekSheetTable tr.active td.time {
     background: #F00;
 }
 
-div.ki_weeksheet tr td.option,
-div.ki_weeksheet tr td.date,
-div.ki_weeksheet tr td.from,
-div.ki_weeksheet tr td.to,
-div.ki_weeksheet tr td.time,
-div.ki_weeksheet tr td.wage {
-    text-align:center;
-}
-
-div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
+div.ki_weeksheets>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     border-right: none;
 }
 
@@ -88,13 +96,21 @@ div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
     width:70px;
 }
 
-#weekSheet td.date.weekend
+#weekSheet  .weekend
 {
     background-color: #f99;
 }
 
-.copy-previous a {
+#weekSheet_head a {
     color: white;
+}
+
+#weekSheet_head table {
+    width: 100%;
+}
+
+#weekSheet_head .nav {
+    text-align: right;
 }
 
 #weekSheet_head td.date,
@@ -106,6 +122,11 @@ div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
 
 #weekSheet td.date input{
     width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    margin: 0;
+    padding: 0 4px;
 }
 
 #weekSheet_head td.project,
@@ -117,10 +138,7 @@ div.ki_weeksheet>div#weekSheet>div#weekSheetTable>table>tbody>tr>td.username {
 .day-totals .date,
 .project-row .total,
 .day-totals .total {
-    background-color: #DDD;
-    border: 2px #bbb solid;
-    text-align: center;
-    padding: 2px 0;
+    padding: 0 4px;
 }
 
 div#weekSheet_head div.left

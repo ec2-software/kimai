@@ -417,32 +417,11 @@ switch ($axAction) {
     // = add / edit weekSheet entry =
     // ==============================
     case 'add_edit_weekSheetEntry':
+
       header('Content-Type: application/json;charset=utf-8');
       $errors = array();
 
       $action = 'add';
-      if ($id)
-        $action = 'edit';
-      if (isset($_REQUEST['erase']))
-        $action = 'delete';
-
-      if ($id) {
-        $data = $database->timeSheet_get_data($id);
-
-        // check if editing or deleting with the old values would be allowed
-        if (!weeksheetAccessAllowed($data, $action, $errors)) {
-          echo json_encode(array('errors'=>$errors));
-          break;
-        }
-      }
-
-      if (isset($_REQUEST['erase'])) {
-        // delete checkbox set ?
-        // then the record is simply dropped and processing stops at this point
-          $database->timeEntry_delete($id);
-          echo json_encode(array('errors'=>$errors));
-          break;
-      }
 
       $data['projectID']      = $_REQUEST['projectID'];
       $data['activityID']     = $_REQUEST['activityID'];
@@ -465,30 +444,12 @@ switch ($axAction) {
       $data['approved']       = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['approved']);
       $data['userID']         = $_REQUEST['userID'];
 
+      $timeframe = get_timeframe();
+      $data['start'] = $timeframe[0] + 1;
+      $data['duration'] = 0;
+      $data['end'] = $data['start'] + $data['duration'];
 
       // check if the posted time values are possible
-
-      $validateDate = new Zend_Validate_Date(array('format' => 'dd.MM.yyyy'));
-      $validateTime = new Zend_Validate_Date(array('format' => 'HH:mm:ss'));
-
-      if (!$validateDate->isValid($_REQUEST['start_day']))
-          $errors['start_day'] = $kga['lang']['TimeDateInputError'];
-
-      if (!$validateTime->isValid($_REQUEST['start_time'])) {
-        $_REQUEST['start_time'] = $_REQUEST['start_time'] . ':00';
-        if (!$validateTime->isValid($_REQUEST['start_time']))
-          $errors['start_time'] = $kga['lang']['TimeDateInputError'];
-      }
-
-      if ($_REQUEST['end_day'] != '' && !$validateDate->isValid($_REQUEST['end_day']))
-        $errors['end_day'] = $kga['lang']['TimeDateInputError'];
-
-      if ($_REQUEST['end_time'] != '' && !$validateTime->isValid($_REQUEST['end_time'])) {
-        $_REQUEST['end_time'] = $_REQUEST['end_time'] . ':00';
-        if (!$validateTime->isValid($_REQUEST['end_time']))
-          $errors['end_time'] = $kga['lang']['TimeDateInputError'];
-      }
-
       if (!is_numeric($data['activityID']))
         $errors['activityID'] = $kga['lang']['errorMessages']['noActivitySelected'];
 
@@ -500,74 +461,24 @@ switch ($axAction) {
           return;
       }
 
-      $edit_in_day = Zend_Locale_Format::getDate($_REQUEST['start_day'],
-                                          array('date_format' => 'dd.MM.yyyy'));
-      $edit_in_time = Zend_Locale_Format::getTime($_REQUEST['start_time'],
-                                          array('date_format' => 'HH:mm:ss'));
+      $database->transaction_begin();
 
-      $edit_in = array_merge($edit_in_day, $edit_in_time);
-
-      $inDate = new Zend_Date($edit_in);
-
-      if ($_REQUEST['end_day'] != '' || $_REQUEST['end_time'] != '') {
-        $edit_out_day = Zend_Locale_Format::getDate($_REQUEST['end_day'],
-                                            array('date_format' => 'dd.MM.yyyy'));
-        $edit_out_time = Zend_Locale_Format::getTime($_REQUEST['end_time'],
-                                            array('date_format' => 'HH:mm:ss'));
-
-        $edit_out = array_merge($edit_out_day, $edit_out_time);
-
-        $outDate = new Zend_Date($edit_out);
-      }
-      else {
-        $outDate = null;
+      if (!weeksheetAccessAllowed($data, $action, $errors)) {
+        echo json_encode(array('errors'=>$errors));
+        $database->transaction_rollback();
+        break;
       }
 
-      $data['start'] = $inDate->getTimestamp();
-
-      if ($outDate != null) {
-        $data['end'] = $outDate->getTimestamp();
-        $data['duration'] = $data['end'] - $data['start'];
+      Kimai_Logger::logfile("timeEntry_create");
+      $createdId = $database->timeEntry_create($data);
+      if (!$createdId) {
+        $errors[''] = $kga['lang']['error'];
       }
 
-      if ($id) { // TIME RIGHT - NEW OR EDIT ?
-
-          if (!weeksheetAccessAllowed($data, $action, $errors)) {
-            echo json_encode(array('errors'=>$errors));
-            break;
-          }
-
-          // TIME RIGHT - EDIT ENTRY
-          Kimai_Logger::logfile("timeEntry_edit: " . $id);
-          $database->timeEntry_edit($id, $data);
-
-      } else {
-
-        // TIME RIGHT - NEW ENTRY
-
-        $database->transaction_begin();
-
-        foreach ($_REQUEST['userID'] as $userID) {
-          $data['userID'] = $userID;
-
-          if (!weeksheetAccessAllowed($data, $action, $errors)) {
-            echo json_encode(array('errors'=>$errors));
-            $database->transaction_rollback();
-            break 2;
-          }
-
-          Kimai_Logger::logfile("timeEntry_create");
-          $createdId = $database->timeEntry_create($data);
-          if (!$createdId) {
-            $errors[''] = $kga['lang']['error'];
-          }
-        }
-
-        $database->transaction_end();
-      }
+      $database->transaction_end();
 
       echo json_encode(array('errors'=>$errors));
-    break;
+      break;
 
     // ===================================
     // = add / edit weekSheet quick note =
@@ -624,8 +535,6 @@ switch ($axAction) {
           echo json_encode(array('errors'=>$errors));
           break;
         }
-
-        //var_dump($data);
 
         $createdId = $database->timeEntry_create($data);
         if (!$createdId) {

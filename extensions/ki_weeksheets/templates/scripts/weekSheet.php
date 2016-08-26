@@ -26,13 +26,13 @@ if ($this->weekSheetEntries)
                   <col class="total"/>
               </colgroup>
             <tbody>
-            <th>
+            <tr class="header odd">
+                <th></th>
                 <?php for ($day = clone $in; $day <= $out; $day->add($oneDay)): ?>
-                    <td class="date <?php if ($day->format('N') >= 6) echo "weekend"; ?>"><?php echo $day->format('D j'); ?></td>
+                    <th class="date <?php if ($day->format('N') >= 6) echo "weekend"; ?>"><?php echo $day->format('D j'); ?></th>
                 <?php endfor; ?>
-                <td class="total"><?php echo $this->kga['lang']['total'] ?></td>
-                <td class="delete"></td>
-            </th>
+                <th class="total"><?php echo $this->kga['lang']['total'] ?></th>
+            </tr>
 
     <?php
     $day_buffer     = 0; // last day entry
@@ -87,11 +87,21 @@ if ($this->weekSheetEntries)
       $projects[$id] = $entry;
     }
 
+    $i = 0;
+
     foreach ($projects as $key => $project)
     { ?>
-      <tr class="project-row">
+      <tr class="project-row <?php echo $i++ % 2 ? 'odd' : 'even'; ?>">
           <td class="project">
-            <?php echo "$project[projectName] ($project[customerName]) - $project[activityName]"; ?>
+            <a href="#" onclick="ws_ext_delete_project(event)"><img src="../skins/standard/grfx/button_trashcan.png" /></a>
+            <?php
+            echo '<a href="#" class="preselect_lnk" onclick="ws_edit_project(event)">';
+            echo "<strong>$project[projectName]</strong>";
+            if ($project['customerName'] != 'ec² Software Solutions')
+                echo " ($project[customerName])";
+            echo " - $project[activityName]";
+            echo "</a>";
+            ?>
           </td>
           <?php
 
@@ -124,16 +134,15 @@ if ($this->weekSheetEntries)
           <td class="total" id="<?php echo "sum-$key"; ?>">
               <?php echo formatHours($project['total']); ?>
           </td>
-          <td class="delete"><a href="#" onclick="ws_ext_delete_project(event)">Delete</a></td>
       </tr>
     <?php } ?>
 
-    <tr class="day-totals">
+    <tr class="day-totals <?php echo $i++ % 2 ? 'odd' : 'even'; ?>">
         <td class="project">
           Totals
         </td>
         <?php
-
+        $totalTotals = 0;
 
         for ($day = clone $in; $day <= $out; $day->add($oneDay))
         {
@@ -141,11 +150,11 @@ if ($this->weekSheetEntries)
             echo '<td id="sum-' . $date . '" class="date">';
             echo formatHours($dayTotals[$fdate]);
             echo '</td>';
+            $totalTotals += $dayTotals[$fdate];
         }
         ?>
 
-        <td class="total"><?php echo formatHours($project['total']); ?></td>
-        <td class="delete"></td>
+        <td class="total"><?php echo formatHours($totalTotals); ?></td>
     </tr>
                 </tbody>
             </table>

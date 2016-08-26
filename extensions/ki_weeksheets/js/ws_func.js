@@ -59,7 +59,35 @@ function ws_formatDate(value) {
 }
 
 function ws_ext_copy_previous_week() {
-	console.log("I do nothing");
+	var weekStart = new Date();
+	weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+
+	var previousWeekStart = new Date(weekStart.getTime());
+	previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+
+	var weekEnd = new Date(weekStart.getTime());
+	weekEnd.setDate(weekEnd.getDate() + 6);
+
+	setTimeframe(previousWeekStart, weekEnd);
+}
+
+function ws_ext_this_week() {
+	var weekStart = new Date();
+	weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+	var weekEnd = new Date(weekStart.getTime());
+	weekEnd.setDate(weekEnd.getDate() + 6);
+
+	setTimeframe(weekStart, weekEnd);
+}
+
+function ws_ext_jump_days(x) {
+	var startDate = $('#pick_in').datepicker('getDate');
+	var endDate = $('#pick_out').datepicker('getDate');
+
+	startDate.setDate(startDate.getDate() + x);
+	endDate.setDate(endDate.getDate() + x);
+
+	setTimeframe(startDate, endDate);
 }
 
 function ws_ext_on_input_change_sum_entries(entries) {
@@ -138,7 +166,7 @@ function ws_ext_delete_project(e) {
 	$(row).find('input').each(function(index, input) {
 		var entries = JSON.parse(input.dataset.entries);
 		if (!entries) return;
-		allEntries.push(...entries);
+		allEntries = allEntries.concat(entries);
 	});
 
 	allEntries.forEach(function(entry) {
@@ -243,10 +271,14 @@ function weeksheet_extension_tab_changed() {
 	weeksheet_customers_changed_hook_flag = 0;
 	weeksheet_projecws_changed_hook_flag = 0;
 	weeksheet_activities_changed_hook_flag = 0;
+	timesheet_timeframe_changed_hook_flag++;
+	timesheet_customers_changed_hook_flag++;
+	timesheet_projects_changed_hook_flag++;
+	timesheet_activities_changed_hook_flag++;
 }
 
 function weeksheet_extension_timeframe_changed() {
-	if ($('.ki_weeksheet').css('display') == "block") {
+	if ($('.ki_weeksheets').css('display') == "block") {
 		ws_ext_reload();
 	} else {
 		weeksheet_timeframe_changed_hook_flag++;
@@ -588,6 +620,26 @@ function ws_getStartDate() {
  */
 function ws_getEndDate() {
 	return ws_getDateFromStrings($("#end_day").val(), $("#end_time").val());
+}
+
+function ws_edit_project(e) {
+	var row = e.target;
+	var ids = [];
+
+	while (!row.classList.contains('project-row')) row = row.parentElement;
+
+	$(row).find('*[data-entries]').each(function(index, element) {
+		var entries = JSON.parse(element.dataset.entries);
+		if (entries) {
+			ids = ids.concat(entries.map(function(entry) {
+				return entry.id;
+			}));
+		}
+	});
+
+	console.log(ids)
+
+	editRecordWeeksheet(ids);
 }
 
 /**
