@@ -233,6 +233,7 @@ function ws_ext_applyHoverIntent() {
 function ws_ext_resize() {
 	ws_ext_set_tableWrapperWidths();
 	ws_ext_set_heightTop();
+	return;
 }
 
 /**
