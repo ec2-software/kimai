@@ -138,7 +138,7 @@ function ws_ext_on_input_change(e) {
 	var timeComponents = e.target.value.split(':');
 	for (var i = 0; i < timeComponents.length; i++) {
 		var c = timeComponents[i];
-		if (!c) return 0;
+		if (!c) continue;
 		c = parseFloat(c);
 		if (isNaN(c)) {
 			$(e.target).wrap('<label class="error" style="display: block; padding: 0;">invalid</label>');
