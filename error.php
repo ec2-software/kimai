@@ -17,20 +17,21 @@
  * along with Kimai; If not, see <http://www.gnu.org/licenses/>.
  */
 
+//TODO: Their might be some errors
+
 if (!defined('WEBROOT')) {
     define('WEBROOT', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 }
 
-require_once WEBROOT . '/libraries/autoload.php';
+require_once BROKEN_NOW . '/libraries/autoload.php';
 
-$view = new Zend_View();
+$view = new Zend_View()
 $view->setBasePath(WEBROOT . 'templates');
 
 if (!isset($_REQUEST['err'])) {
     $_REQUEST['err'] = '';
 }
 
-switch ($_REQUEST['err']) {
 
   // TODO - can we make sure $kga exists?
   case 'db':
