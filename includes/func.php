@@ -427,16 +427,6 @@ function get_timeframe()
 }
 
 /**
- * @param string $haystack
- * @param string $needle
- * @return bool
- */
-function endsWith($haystack, $needle)
-{
-    return strcmp(substr($haystack, strlen($haystack) - strlen($needle)), $needle) === 0;
-}
-
-/**
  * Returns the boolean value as integer, submitted via checkbox.
  *
  * @param string $name
@@ -588,4 +578,18 @@ function coreObjectActionAllowed($objectTypeName, $action)
     }
 
     return false;
+}
+
+/**
+ * Encode a password
+ *
+ * @param string $password the password string to encode
+ * @return string the encoded password string
+ */
+function encode_password($password)
+{
+    global $kga;    
+    
+    $salt = $kga['password_salt'];
+    return md5($salt . $password . $salt);
 }
