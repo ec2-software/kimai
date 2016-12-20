@@ -6,3 +6,9 @@ td span.hidden,
 td.hidden {
     color:#bbb;
 }
+
+/* Remove To/From columns per Brett's request */
+td.from,
+td.to {
+    display: none;
+}
