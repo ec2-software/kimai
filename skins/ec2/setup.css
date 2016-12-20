@@ -1,6 +1,7 @@
 html {
     min-width:970px;
     font-size:95%;     
+    background-color: #55ae55
 }
 
 a:active {outline: none;}
@@ -34,7 +35,7 @@ input {
 
 #top {
     width:100%;
-    background-color:#3c4680;
+    background-color:#fff;
     height: 89px;
 }
 
