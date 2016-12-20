@@ -290,3 +290,6 @@ div.lists tr.odd td {
 .fhighlighted td {
    background: #89C0F3 !important;
 }
+
+#gui, html {
+}
