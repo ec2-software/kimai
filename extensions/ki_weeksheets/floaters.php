@@ -40,6 +40,7 @@ switch ($axAction) {
         $view->assign('id', $id);
         $view->assign('location', $weekSheetEntry['location']);
 
+		/*
         // check if this entry may be edited
         if ($weekSheetEntry['userID'] == $kga['user']['userID']) {
           // the user's own entry
@@ -56,6 +57,7 @@ switch ($axAction) {
         }
         else if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-otherEntry-otherGroup-edit'))
           break;
+          */
 
         // set list of users to what the user may do
         $users = array();

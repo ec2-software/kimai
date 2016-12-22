@@ -1907,7 +1907,7 @@ class Kimai_Database_Mysql
      * Returns the data of a certain status
      *
      * @param array $statusID  ID of the group
-     * @return array         	 the group's data (name) as array, false on failure
+     * @return array             the group's data (name) as array, false on failure
      * @author mo
      */
     public function status_get_data($statusID)
@@ -1950,7 +1950,7 @@ class Kimai_Database_Mysql
      * Returns the number of time sheet entries with a certain status
      *
      * @param integer $statusID   ID of the status
-     * @return int            		the number of timesheet entries with this status
+     * @return int                  the number of timesheet entries with this status
      * @author mo
      */
     public function status_timeSheetEntryCount($statusID)
@@ -2108,7 +2108,7 @@ class Kimai_Database_Mysql
      * deletes a status
      *
      * @param array $statusID  statusID of the status
-     * @return boolean       	 true on success, false on failure
+     * @return boolean           true on success, false on failure
      * @author mo
      */
     public function status_delete($statusID)
@@ -2254,10 +2254,10 @@ class Kimai_Database_Mysql
         $customerTable = $this->getCustomerTable();
 
         $select = "SELECT $table.*, $projectTable.name AS projectName, $customerTable.name AS customerName, $activityTable.name AS activityName, $customerTable.customerID AS customerID
-      				FROM $table
-                	JOIN $projectTable USING(projectID)
-                	JOIN $customerTable USING(customerID)
-                	JOIN $activityTable USING(activityID)";
+                    FROM $table
+                    JOIN $projectTable USING(projectID)
+                    JOIN $customerTable USING(customerID)
+                    JOIN $activityTable USING(activityID)";
 
 
         if ($timeEntryID) {
@@ -2351,11 +2351,11 @@ class Kimai_Database_Mysql
             if (isset($data[$key]) == true) {
                 // budget is added to total budget for activity. So if we change the budget, we need
                 // to first subtract the previous entry before adding the new one
-//          	if($key == 'budget') {
-//          		$budgetChange = - $value;
-//          	} else if($key == 'approved') {
-//          		$approvedChange = - $value;
-//          	}
+//              if($key == 'budget') {
+//                  $budgetChange = - $value;
+//              } else if($key == 'approved') {
+//                  $approvedChange = - $value;
+//              }
                 $new_array[$key] = $data[$key];
             } else {
                 $new_array[$key] = $original_array[$key];
@@ -2406,10 +2406,10 @@ class Kimai_Database_Mysql
                 return false;
             }
         } else {
-            //      	$budgetChange += $values['budget'];
-//      	$approvedChange += $values['approved'];
-//      	$this->update_evt_budget($values['projectID'], $values['activityID'], $budgetChange);
-//      	$this->update_evt_approved($values['projectID'], $values['activityID'], $budgetChange);
+            //          $budgetChange += $values['budget'];
+//          $approvedChange += $values['approved'];
+//          $this->update_evt_budget($values['projectID'], $values['activityID'], $budgetChange);
+//          $this->update_evt_approved($values['projectID'], $values['activityID'], $budgetChange);
             $this->logLastError('timeEntry_edit');
             if (!$this->conn->TransactionRollback()) {
                 $this->logLastError('timeEntry_edit');
@@ -2807,6 +2807,66 @@ class Kimai_Database_Mysql
             $i++;
         }
         return $arr;
+    }
+    
+    public function get_weekSheet($start, $end, $users = null, $customers = null, $projects = null, $activities = null, $limit = false, $reverse_order = false, $filterCleared = null, $startRows = 0, $limitRows = 0, $countOnly = false)
+    {
+        $timeSheetEntries = $this->get_timeSheet($start, $end, $users, $customers, $projects,  $activities, $limit, $reverse_order, $filterCleared, $startRows, $limitRows, $countOnly);
+        
+        $projects = array();
+        $dayTotals = array();
+        
+        foreach ($timeSheetEntries as $rowIndex => $row)
+        {
+            $hash = "$row[customerID]-$row[projectID]-$row[activityID]-$row[description]";
+            if (isset($projects[$hash]))
+            {
+                $entry = $projects[$hash];
+            }
+            else
+            {
+                $entry = $row;
+                $entry['total'] = 0;
+                //$entry['userID'] = $id;
+            }
+
+            $date = new DateTime();
+            $date->setTimeStamp($row['start']);
+            $date = $date->format('Y-m-d');
+            $pair = array('id' => $row['timeEntryID'] + 0, 'duration' => $row['duration']);
+
+            if (isset($entry[$date]))
+            {
+                $entry[$date]['edit_locked'] = $entry[$date]['edit_locked'] && false;
+                $entry[$date]['total'] += $row['duration'];
+                $entry[$date]['entries'][] = $pair;
+            }
+            else
+            {
+                $entry[$date] = array(
+                  'total' => $row['duration'],
+                  'entries' => array($pair),
+                  'edit_locked' => false,
+                );
+            }
+
+            if (isset($dayTotals[$date]))
+            {
+                $dayTotals[$date] += $row['duration'];
+            }
+            else
+            {
+                $dayTotals[$date] = $row['duration'];
+            }
+
+            $entry['total'] += $row['duration'];
+            $projects[$hash] = $entry;
+        }
+        
+        return array(
+            'projects' => $projects,
+            'dayTotals' => $dayTotals,
+        );
     }
 
     /**

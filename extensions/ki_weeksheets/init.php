@@ -58,17 +58,17 @@ $view->assign('total', $total);
 
 // Get the array of weeksheet entries.
 if (isset($kga['customer'])) {
-  $weekSheetEntries = $database->get_timeSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
+  $weekSheetEntries = $database->get_weekSheet($in, $out, null, array($kga['customer']['customerID']), null, 1);
   $view->assign('latest_running_entry', null);
 } else {
-  $weekSheetEntries = $database->get_timeSheet($in, $out, array($kga['user']['userID']), null, null, 1);
+  $weekSheetEntries = $database->get_weekSheet($in, $out, array($kga['user']['userID']), null, null, 1);
   $view->assign('latest_running_entry', $database->get_latest_running_entry());
 }
 
 if (count($weekSheetEntries) > 0) {
-    $view->assign('weekSheetEntries', $weekSheetEntries);
+  $view->assign('weekSheetEntries', $weekSheetEntries);
 } else {
-    $view->assign('weekSheetEntries', 0);
+  $view->assign('weekSheetEntries', 0);
 }
 
 // Get the annotations for the user sub list.
@@ -113,7 +113,7 @@ if (isset($kga['user'])) {
     $view->assign('showTrackingNumber', $database->user_get_preference('ui.showTrackingNumber') != 0);
 }
 
-$view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'));
+$view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'));
 
 $view->assign('weekSheet_display', $view->render("weekSheet.php"));
 

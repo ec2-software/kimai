@@ -371,7 +371,7 @@ switch ($axAction) {
         if (isset($kga['customer']))
           $filterCustomers = array($kga['customer']['customerID']);
 
-        $weekSheetEntries = $database->get_timeSheet($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities, 1);
+        $weekSheetEntries = $database->get_weekSheet($in, $out, $filterUsers, $filterCustomers, $filterProjects, $filterActivities, 1);
         if (count($weekSheetEntries) > 0) {
             $view->assign('weekSheetEntries', $weekSheetEntries);
         } else {
@@ -417,11 +417,32 @@ switch ($axAction) {
     // = add / edit weekSheet entry =
     // ==============================
     case 'add_edit_weekSheetEntry':
-
       header('Content-Type: application/json;charset=utf-8');
       $errors = array();
 
       $action = 'add';
+	  if ($id)
+        $action = 'edit';
+      if (isset($_REQUEST['erase']))
+        $action = 'delete';
+
+      if ($id) {
+        $data = $database->timeSheet_get_data($id);
+
+        // check if editing or deleting with the old values would be allowed
+        if (!weeksheetAccessAllowed($data, $action, $errors)) {
+          echo json_encode(array('errors'=>$errors));
+          break;
+        }
+      }
+
+      if (isset($_REQUEST['erase'])) {
+        // delete checkbox set ?
+        // then the record is simply dropped and processing stops at this point
+          $database->timeEntry_delete($id);
+          echo json_encode(array('errors'=>$errors));
+          break;
+      }
 
       $data['projectID']      = $_REQUEST['projectID'];
       $data['activityID']     = $_REQUEST['activityID'];
@@ -449,7 +470,6 @@ switch ($axAction) {
       $data['duration'] = 0;
       $data['end'] = $data['start'] + $data['duration'];
 
-      // check if the posted time values are possible
       if (!is_numeric($data['activityID']))
         $errors['activityID'] = $kga['lang']['errorMessages']['noActivitySelected'];
 
@@ -461,24 +481,86 @@ switch ($axAction) {
           return;
       }
 
-      $database->transaction_begin();
+	  if ($id) { // TIME RIGHT - NEW OR EDIT ?
 
-      if (!weeksheetAccessAllowed($data, $action, $errors)) {
-        echo json_encode(array('errors'=>$errors));
-        $database->transaction_rollback();
-        break;
+          if (!weeksheetAccessAllowed($data, $action, $errors)) {
+            echo json_encode(array('errors'=>$errors));
+            break;
+          }
+
+          // TIME RIGHT - EDIT ENTRY
+          Kimai_Logger::logfile("timeEntry_edit: " . $id);
+          $database->timeEntry_edit($id, $data);
+
+      } else {
+
+        // TIME RIGHT - NEW ENTRY
+
+        $database->transaction_begin();
+
+        foreach ($_REQUEST['userID'] as $userID) {
+          $data['userID'] = $userID;
+
+          if (!weeksheetAccessAllowed($data, $action, $errors)) {
+            echo json_encode(array('errors'=>$errors));
+            $database->transaction_rollback();
+            break 2;
+          }
+
+          Kimai_Logger::logfile("timeEntry_create");
+          $createdId = $database->timeEntry_create($data);
+          if (!$createdId) {
+            $errors[''] = $kga['lang']['error'];
+          }
+        }
+
+        $database->transaction_end();
       }
-
-      Kimai_Logger::logfile("timeEntry_create");
-      $createdId = $database->timeEntry_create($data);
-      if (!$createdId) {
-        $errors[''] = $kga['lang']['error'];
-      }
-
-      $database->transaction_end();
 
       echo json_encode(array('errors'=>$errors));
-      break;
+    break;
+
+    // ===================================
+    // = add / edit timeSheet quick note =
+    // ===================================
+    case 'add_edit_timeSheetQuickNote':
+        header('Content-Type: application/json;charset=utf-8');
+        $errors = array();
+
+        $action = 'add';
+
+        if ($id) {
+            $action = 'edit';
+            $data = $database->timeSheet_get_data($id);
+
+            // check if editing or deleting with the old values would be allowed
+            if (!timesheetAccessAllowed($data, $action, $errors)) {
+                echo json_encode(array('errors' => $errors));
+                break;
+            }
+        }
+
+        $data['location'] = $_REQUEST['location'];
+        $data['trackingNumber'] = isset($_REQUEST['trackingNumber']) ? $_REQUEST['trackingNumber'] : '';
+        $data['comment'] = $_REQUEST['comment'];
+        $data['commentType'] = $_REQUEST['commentType'];
+        $data['userID'] = $_REQUEST['userID'];
+
+        if (!timesheetAccessAllowed($data, $action, $errors)) {
+            echo json_encode(array('errors' => $errors));
+            break;
+        }
+        if ($id) { // TIME RIGHT - NEW OR EDIT ?
+            // TIME RIGHT - EDIT ENTRY
+            Kimai_Logger::logfile("timeNote_edit: " . $id);
+            $database->timeEntry_edit($id, $data);
+        } else {
+            // TIME RIGHT - NEW ENTRY
+            Kimai_Logger::logfile("timeNote_create");
+            $database->timeEntry_create($data);
+        }
+        echo json_encode(array('errors' => $errors));
+        break;
 
     case 'add_weekday':
         $action = 'add';

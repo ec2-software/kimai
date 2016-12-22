@@ -20,62 +20,6 @@ function formatTime($seconds) {
     return "$hours:$mins";
 }
 
-if (!function_exists('weeksheetAccessAllowed')) {
-
-    function weeksheetAccessAllowed($entry, $action, &$errors) {
-        global $database, $kga;
-
-      if (!isset($kga['user'])) {
-        $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-        return false;
-      }
-
-
-      if ($kga['conf']['editLimit'] != "-" && time() - $entry['end'] > $kga['conf']['editLimit'] && $entry['end'] != 0) {
-        $errors[''] = $kga['lang']['editLimitError'];
-        return;
-      }
-
-
-      $groups = $database->getGroupMemberships($entry['userID']);
-
-      if ($entry['userID'] == $kga['user']['userID']) {
-        $permissionName = 'ki_timesheets-ownEntry-' . $action;
-        if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
-          return true;
-        } else {
-          Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
-          $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-          return false;
-        }
-      }
-
-      $assignedOwnGroups = array_intersect($groups, $database->getGroupMemberships($kga['user']['userID']));
-
-      if (count($assignedOwnGroups) > 0) {
-        $permissionName = 'ki_timesheets-otherEntry-ownGroup-' . $action;
-        if ($database->checkMembershipPermission($kga['user']['userID'], $assignedOwnGroups, $permissionName)) {
-          return true;
-        } else {
-          Kimai_Logger::logfile("missing membership permission $permissionName of own group(s) " . implode(", ", $assignedOwnGroups) . " for user " . $kga['user']['name']);
-          $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-          return false;
-        }
-
-      }
-
-      $permissionName = 'ki_timesheets-otherEntry-otherGroup-' . $action;
-      if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
-        return true;
-      } else {
-        Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
-        $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-        return false;
-      }
-
-    }
-}
-
 if ($this->weekSheetEntries)
 {
     ?>
@@ -99,61 +43,11 @@ if ($this->weekSheetEntries)
             </tr>
 
     <?php
-    $day_buffer     = 0; // last day entry
-    $time_buffer    = 0; // last time entry
-    $end_buffer     = 0; // last time entry
-    $ws_buffer      = 0; // current time entry
-
-    $projects = array();
-    $dayTotals = array();
-
-    foreach ($this->weekSheetEntries as $row)
-    {
-      $id = "$row[customerID]-$row[projectID]-$row[activityID]";
-      if (isset($projects[$id]))
-      {
-        $entry = $projects[$id];
-      }
-      else
-      {
-        $entry = $row;
-      }
-
-
-      $date = new DateTime();
-      $date->setTimeStamp($row['start']);
-      $date = $date->format('Y-m-d');
-      $pair = array('id' => $row['timeEntryID'] + 0, 'duration' => $row['duration']);
-
-      if (isset($entry[$date]))
-      {
-        $entry[$date]['total'] += $row['duration'];
-        $entry[$date]['entries'][] = $pair;
-      }
-      else
-      {
-        $entry[$date] = array(
-          'total' => $row['duration'],
-          'entries' => array($pair),
-        );
-      }
-
-      if (isset($dayTotals[$date]))
-      {
-          $dayTotals[$date] += $row['duration'];
-      }
-      else
-      {
-          $dayTotals[$date] = $row['duration'];
-      }
-
-      $entry['total'] += $row['duration'];
-      $projects[$id] = $entry;
-    }
+    
 
     $i = 0;
 
-    foreach ($projects as $key => $project)
+    foreach ($this->weekSheetEntries['projects'] as $key => $project)
     { ?>
       <tr class="project-row <?php echo $i++ % 2 ? 'odd' : 'even'; ?>">
           <td class="project">
@@ -166,6 +60,13 @@ if ($this->weekSheetEntries)
             echo " - $project[activityName]";
             echo "</a>";
             ?>
+            <?php if ($this->showTrackingNumber) { ?>
+              <?php echo $this->escape($this->truncate($project['description'],50,'...')) ?>
+                <?php if ($project['description']): ?>
+                <a href="#" onclick="$(this).blur();  return false;" ><img src="<?php echo $this->skin('grfx/blase_sys.gif'); ?>" width="12" height="13" title='<?php echo $this->escape($project['description'])?>' border="0" /></a>
+              <?php endif; ?>
+                <?php echo $this->escape($project['trackingNumber']) ?>
+            <?php } ?>
           </td>
           <?php
 
@@ -174,22 +75,22 @@ if ($this->weekSheetEntries)
               $fdate = $day->format('Y-m-d');
               if (!isset($project[$fdate]))
               {
-                  $project[$fdate] = array('total' => 0, 'id' => null);
+                  $project[$fdate] = array('total' => 0, 'id' => null, 'edit_locked' => false);
               }
               $entry = $project[$fdate];
               ?>
               <td class="date">
-                  <?php
-                  $errors = array();
-                  if (weeksheetAccessAllowed($entry, 'edit', $errors) || true) {
-                      ?>
+                  <?php if (!$entry['edit_locked']) { ?>
                       <input type=""
                         id="<?php echo "input-$fdate-$key" ?>"
                         value="<?php echo formatTime($entry['total']); ?>"
                         min="0"
                         max="24"
                         step=""
-                        data-entries="<?php echo htmlspecialchars(json_encode($entry['entries'])); ?>"
+                        data-entries="<?php
+                        if (isset($entry['entries'])) {
+                         echo htmlspecialchars(json_encode($entry['entries']));
+                        } else echo 'null'; ?>"
                         data-project="<?php echo htmlspecialchars(json_encode($project)); ?>"
                         data-date="<?php echo htmlspecialchars($fdate); ?>"
                         onchange="ws_ext_on_input_change(event)"
@@ -215,14 +116,17 @@ if ($this->weekSheetEntries)
         </td>
         <?php
         $totalTotals = 0;
+        $dayTotals = $this->weekSheetEntries['dayTotals'];
 
         for ($day = clone $in; $day <= $out; $day->add($oneDay))
         {
             $fdate = $day->format('Y-m-d');
-            echo '<td id="sum-' . $date . '" class="date">';
-            echo formatHours($dayTotals[$fdate]);
+            echo '<td id="sum-' . $day->format('Y-m-d') . '" class="date">';
+            if (isset($dayTotals[$fdate])) {
+				echo formatHours($dayTotals[$fdate]);
+				$totalTotals += $dayTotals[$fdate];
+			}
             echo '</td>';
-            $totalTotals += $dayTotals[$fdate];
         }
         ?>
 

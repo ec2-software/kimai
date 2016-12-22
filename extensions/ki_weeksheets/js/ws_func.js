@@ -443,8 +443,7 @@ function ws_ext_recordAgain(project,activity,id) {
 
 	$('#weekSheetEntry' + id + '>td>a.recordAgain>img').attr("src", "../skins/" + skin + "/grfx/loading13.gif");
 	var now = Math.floor(((new Date()).getTime()) / 1000);
-	offset = now;
-	startsec = 0;
+	startsec = now;
 	show_stopwatch();
 	$('#weekSheetEntry'+id+'>td>a').removeAttr('onclick');
 
@@ -655,7 +654,7 @@ function ws_edit_project(e) {
 
 	console.log(ids)
 
-	editRecordWeeksheet(ids);
+	editRecordWeeksheet(ids[0]);
 }
 
 /**
