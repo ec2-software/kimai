@@ -27,7 +27,7 @@ $dir_templates = "templates/";
 require("../../includes/kspi.php");
 
 function weeksheetAccessAllowed($entry, $action, &$errors) {
-    global $database, $kga;
+  global $database, $kga;
 
   if (!isset($kga['user'])) {
     $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
@@ -196,7 +196,7 @@ switch ($axAction) {
         if (!isset($kga['user']))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'))
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
@@ -218,7 +218,7 @@ switch ($axAction) {
         if (!isset($kga['user']))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'))
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
@@ -249,7 +249,7 @@ switch ($axAction) {
         if (!isset($kga['user']))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'))
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'))
           $data['errors'][] = $kga['lang']['editLimitError'];
 
         if (count($data['errors']) == 0) {
@@ -288,7 +288,7 @@ switch ($axAction) {
           $data['errors'][] = $kga['lang']['editLimitError'];
         }
 
-        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates')) {
+        if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates')) {
           $data['errors'][] = $kga['lang']['editLimitError'];
         }
 
@@ -407,7 +407,7 @@ switch ($axAction) {
             $view->assign('showTrackingNumber', $database->user_get_preference('ui.showTrackingNumber') != 0);
         }
 
-        $view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-showRates'));
+        $view->assign('showRates', isset($kga['user']) && $database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates'));
 
         echo $view->render("weekSheet.php");
     break;
@@ -421,7 +421,7 @@ switch ($axAction) {
       $errors = array();
 
       $action = 'add';
-	  if ($id)
+      if ($id)
         $action = 'edit';
       if (isset($_REQUEST['erase']))
         $action = 'delete';
@@ -451,7 +451,7 @@ switch ($axAction) {
       $data['description']    = $_REQUEST['description'];
       $data['comment']        = $_REQUEST['comment'];
       $data['commentType']    = $_REQUEST['commentType'];
-      if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_weeksheets-editRates')) {
+      if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-editRates')) {
         $data['rate']         = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['rate']);
         $data['fixedRate']      = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['fixedRate']);
       } else if (!$id) {
@@ -481,7 +481,8 @@ switch ($axAction) {
           return;
       }
 
-	  if ($id) { // TIME RIGHT - NEW OR EDIT ?
+
+      if ($id) { // TIME RIGHT - NEW OR EDIT ?
 
           if (!weeksheetAccessAllowed($data, $action, $errors)) {
             echo json_encode(array('errors'=>$errors));
@@ -501,11 +502,13 @@ switch ($axAction) {
         foreach ($_REQUEST['userID'] as $userID) {
           $data['userID'] = $userID;
 
+          /*
           if (!weeksheetAccessAllowed($data, $action, $errors)) {
             echo json_encode(array('errors'=>$errors));
             $database->transaction_rollback();
             break 2;
           }
+          */
 
           Kimai_Logger::logfile("timeEntry_create");
           $createdId = $database->timeEntry_create($data);

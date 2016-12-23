@@ -36,9 +36,9 @@
     </div>
 
     <form id="ws_ext_form_add_edit_weekSheetEntry" action="../extensions/ki_weeksheets/processor.php" method="post">
-    <?php if ($this->id): foreach ($this->id as $id): ?>
-    <input type="hidden" name="id[]" value="<?php echo $id; ?>" />
-    <?php endforeach; endif; ?>
+    <?php if ($this->id): ?>
+    <input type="hidden" name="id" value="<?php echo $this->id; ?>" />
+    <?php endif; ?>
     <input type="hidden" name="axAction" value="add_edit_weekSheetEntry" />
 	<input type="hidden" id="stepMinutes" value="<?php echo $this->kga['conf']['roundMinutes']?>" />
 	<input type="hidden" id="stepSeconds" value="<?php echo $this->kga['conf']['roundSeconds']?>" />
