@@ -26,6 +26,38 @@ $isCoreProcessor = 0;
 $dir_templates = "templates/";
 require("../../includes/kspi.php");
 
+/**
+ * Sets a value on $target if the $original does not have the same value
+ * as $_REQUEST. Used to change values if the original values from the
+ * form have not changed.
+ * 
+ * @param $name      string    Index in the array (on $_REQUEST, 
+ *                               $original, and $target) to get/set the
+ *                               value
+ * @param $original  array     Associative array containing the original
+ *                               values to compare against.
+ * @param $target    array     Associative array to store the value
+ * @param $accessor  callable  Optional, called with the value of 
+ *                               $_REQUEST[$name] as it's only parameter 
+ *                               Should return the new value to set.
+ */
+function conditionalSet_REQUEST($name, $original, &$target, $accessor = null)
+{
+  if ($accessor === null)
+    $val = $_REQUEST[$name];
+  else
+    $val = $accessor($_REQUEST[$name]);
+  
+  if ($original[$name] != $val)
+    $target[$name] = $val;
+}
+
+// Convert the numeric string from using the decimal seperator configured in settings to use a period, as PHP uses to parse it.
+function fixDecimal($val)
+{
+  return str_replace($kga['conf']['decimalSeparator'], '.', $val);
+}
+
 function weeksheetAccessAllowed($entry, $action, &$errors) {
   global $database, $kga;
 
@@ -454,9 +486,6 @@ switch ($axAction) {
         break;
       }
 
-      
-
-
       if ($id) { // TIME RIGHT - NEW OR EDIT ?
 
         if (!weeksheetAccessAllowed($data, $action, $errors)) {
@@ -477,31 +506,25 @@ switch ($axAction) {
           $data['activityID']     = $_REQUEST['activityID']; 
           $data['description']    = $_REQUEST['description'];
           
-          if ($_REQUEST['location'] != $odata['location']) $data['location'] = $_REQUEST['location'];
-          if ((isset($_REQUEST['trackingNumber']) ? $_REQUEST['trackingNumber'] : '') != $odata['trackingNumber']) $data['trackingNumber'] = isset($_REQUEST['trackingNumber']) ? $_REQUEST['trackingNumber'] : '';
-          if ($_REQUEST['comment'] != $odata['comment']) $data['comment'] = $_REQUEST['comment'];
-          if ($_REQUEST['commentType'] != $odata['commentType']) $data['commentType'] = $_REQUEST['commentType'];
-          
-           
+          conditionalSet_REQUEST('location', $odata, $data);
+          conditionalSet_REQUEST('trackingNumber', $odata, $data, function() { return isset($_REQUEST['trackingNumber']); });
+          conditionalSet_REQUEST('comment', $odata, $data);
+          conditionalSet_REQUEST('commentType', $odata, $data);
           
           if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-editRates')) {
-            if ($_REQUEST['rate'] != $odata['rate']) $data['rate']         = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['rate']);
-            if ($_REQUEST['fixedRate'] != $odata['fixedRate']) $data['fixedRate']      = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['fixedRate']);
+            conditionalSet_REQUEST('rate', $odata, $data, 'fixDecimal');
+            conditionalSet_REQUEST('fixedRate', $odata, $data, 'fixDecimal');
           } else if (!$id) {
-            if ($_REQUEST['rate'] != $odata['rate']) $data['rate']         = $database->get_best_fitting_rate($kga['user']['userID'], $data['projectID'], $data['activityID']);
-            if ($_REQUEST['fixedRate'] != $odata['fixedRate']) $data['fixedRate']      = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['fixedRate']);
+            $data['rate'] = $database->get_best_fitting_rate($kga['user']['userID'], $data['projectID'], $data['activityID']);
+            conditionalSet_REQUEST('fixedRate', $odata, $data, 'fixDecimal');
           }
           
-          
-          if (isset($_REQUEST['comment']) != $odata['comment']) $data['cleared'] = isset($_REQUEST['cleared']);
-          if ($_REQUEST['statusID'] != $odata['statusID']) $data['statusID'] = $_REQUEST['statusID'];
-          if ($_REQUEST['billable'] != $odata['billable']) $data['billable'] = $_REQUEST['billable'];
-          
-          if (str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['budget']) != $odata['budget'])
-            $data['budget']         = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['budget']);
-          if (str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['approved']) != $odata['approved'])
-            $data['approved']       = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['approved']);
-          if ($_REQUEST['userID'] != $odata['userID']) $data['userID'] = $_REQUEST['userID'];
+          conditionalSet_REQUEST('cleared', $odata, $data, function() { return isset($_REQUEST['cleared']); });
+          conditionalSet_REQUEST('statusID', $odata, $data);
+          conditionalSet_REQUEST('billable', $odata, $data);
+          conditionalSet_REQUEST('budget', $odata, $data, 'fixDecimal');
+          conditionalSet_REQUEST('approved', $odata, $data, 'fixDecimal');
+          conditionalSet_REQUEST('userID', $odata, $data);
          
           if (!is_numeric($data['activityID']))
             $errors['activityID'] = $kga['lang']['errorMessages']['noActivitySelected'];
@@ -511,7 +534,7 @@ switch ($axAction) {
          
           if (count($errors) > 0) {
               echo json_encode(array('errors'=>$errors));
-              return;
+              break 2;
           }
           // TIME RIGHT - EDIT ENTRY
           Kimai_Logger::logfile("timeEntry_edit: " . $id);
@@ -529,18 +552,21 @@ switch ($axAction) {
         $data['comment']        = $_REQUEST['comment'];
         $data['commentType']    = $_REQUEST['commentType'];
         if ($database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-editRates')) {
-          $data['rate']         = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['rate']);
-          $data['fixedRate']      = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['fixedRate']);
+          $data['rate']         = fixDecimal($_REQUEST['rate']);
+          $data['fixedRate']    = fixDecimal($_REQUEST['fixedRate']);
         } else if (!$id) {
           $data['rate']         = $database->get_best_fitting_rate($kga['user']['userID'], $data['projectID'], $data['activityID']);
-          $data['fixedRate']      = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['fixedRate']);
+          $data['fixedRate']    = fixDecimal($_REQUEST['fixedRate']);
         }
         $data['cleared']        = isset($_REQUEST['cleared']);
         $data['statusID']       = $_REQUEST['statusID'];
         $data['billable']       = $_REQUEST['billable'];
-        $data['budget']         = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['budget']);
-        $data['approved']       = str_replace($kga['conf']['decimalSeparator'], '.', $_REQUEST['approved']);
+        $data['budget']         = fixDecimal($_REQUEST['budget']);
+        $data['approved']       = fixDecimal($_REQUEST['approved']);
         $data['userID']         = $_REQUEST['userID'];
+        $data['start'] = $in + 32400;
+        $data['duration'] = 0;
+        $data['end'] = $data['start'];
 
         if (!is_numeric($data['activityID']))
           $errors['activityID'] = $kga['lang']['errorMessages']['noActivitySelected'];
@@ -559,14 +585,11 @@ switch ($axAction) {
 
         foreach ($_REQUEST['userID'] as $userID) {
           $data['userID'] = $userID;
-
-          /*
           if (!weeksheetAccessAllowed($data, $action, $errors)) {
             echo json_encode(array('errors'=>$errors));
             $database->transaction_rollback();
             break 2;
           }
-          */
 
           Kimai_Logger::logfile("timeEntry_create");
           $createdId = $database->timeEntry_create($data);
@@ -579,7 +602,7 @@ switch ($axAction) {
       }
 
       echo json_encode(array('errors'=>$errors));
-    break;
+      break;
 
     // ===================================
     // = add / edit timeSheet quick note =
@@ -640,7 +663,7 @@ switch ($axAction) {
         $createdId = $database->timeEntry_create($data);
         if (!$createdId) {
             $errors[''] = $kga['lang']['error'];
-            //$errors[] = $database->conn->Error();
+            $errors[] = $database->conn->Error();
         }
 
         //$database->transaction_end();
@@ -649,42 +672,43 @@ switch ($axAction) {
 
     case 'update_weekday':
         //$database->transaction_begin();
-        $action = 'edit';
         $errors = array();
 
         foreach ($_REQUEST['entries'] as $entry) {
             $data = $database->timeSheet_get_data($entry['id']);
             $errors = array();
-
-            if (!weeksheetAccessAllowed($data, $action, $errors)) {
-              echo json_encode(array('errors'=>$errors));
-              //$database->transaction_rollback();
-              break 2;
-            }
-
-            $data['duration'] = $entry['duration'] * 3600;
-            $data['end'] = $data['start'] + $data['duration'];
-
-            Kimai_Logger::logfile("timeEntry_create");
-            $createdId = $database->timeEntry_edit($entry['id'], $data);
-            if (!$createdId) {
-              $errors[''] = $kga['lang']['error'];
-            }
-
+            
             if (isset($entry['deleted']) && $entry['deleted']) {
-                $action = 'delete';
-                if (!weeksheetAccessAllowed($data, $action, $errors)) {
-                  echo json_encode(array('errors'=>$errors));
-                  //$database->transaction_rollback();
-                  break 2;
-                }
-                $deletedId = $database->timeEntry_delete($entry['id']);
-                if (!$deletedId) {
-                  $errors[''] = $kga['lang']['error'];
-                  echo json_encode(array('errors' => $errors));
-                  //$database->transaction_rollback();
-                  break 2;
-                }
+              $action = 'delete';
+              if (!weeksheetAccessAllowed($data, $action, $errors)) {
+                echo json_encode(array('errors'=>$errors));
+                $database->transaction_rollback();
+                break 2;
+              }
+              $deletedId = $database->timeEntry_delete($entry['id']);
+              if (!$deletedId) {
+                $errors[''] = $kga['lang']['error'];
+                echo json_encode(array('errors' => $errors));
+                //$database->transaction_rollback();
+                break 2;
+              }
+            } else {
+              $action = 'edit';
+
+              if (!weeksheetAccessAllowed($data, $action, $errors)) {
+                echo json_encode(array('errors'=>$errors));
+                //$database->transaction_rollback();
+                break 2;
+              }
+
+              $data['duration'] = $entry['duration'] * 3600;
+              $data['end'] = $data['start'] + $data['duration'];
+
+              Kimai_Logger::logfile("timeEntry_edit");
+              $createdId = $database->timeEntry_edit($entry['id'], $data);
+              if (!$createdId) {
+                $errors[''] = $kga['lang']['error'];
+              }
             }
         }
 
