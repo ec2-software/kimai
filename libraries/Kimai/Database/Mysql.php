@@ -2826,6 +2826,8 @@ class Kimai_Database_Mysql
             else
             {
                 $entry = $row;
+                $entry['dates'] = array();
+                $entry['ids'] = array();
                 $entry['total'] = 0;
                 //$entry['userID'] = $id;
             }
@@ -2837,13 +2839,13 @@ class Kimai_Database_Mysql
 
             if (isset($entry[$date]))
             {
-                $entry[$date]['edit_locked'] = $entry[$date]['edit_locked'] && false;
-                $entry[$date]['total'] += $row['duration'];
-                $entry[$date]['entries'][] = $pair;
+                $entry['dates'][$date]['edit_locked'] = $entry[$date]['edit_locked'] && false;
+                $entry['dates'][$date]['total'] += $row['duration'];
+                $entry['dates'][$date]['entries'][] = $pair;
             }
             else
             {
-                $entry[$date] = array(
+                $entry['dates'][$date] = array(
                   'total' => $row['duration'],
                   'entries' => array($pair),
                   'edit_locked' => false,
@@ -2859,6 +2861,7 @@ class Kimai_Database_Mysql
                 $dayTotals[$date] = $row['duration'];
             }
 
+            $entry['ids'][] = $row['timeEntryID'];
             $entry['total'] += $row['duration'];
             $projects[$hash] = $entry;
         }

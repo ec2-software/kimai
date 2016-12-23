@@ -46,6 +46,8 @@ if ($this->weekSheetEntries)
     
 
     $i = 0;
+    
+    ksort($this->weekSheetEntries['projects']);
 
     foreach ($this->weekSheetEntries['projects'] as $key => $project)
     { ?>
@@ -73,11 +75,11 @@ if ($this->weekSheetEntries)
           for ($day = clone $in; $day <= $out; $day->add($oneDay))
           {
               $fdate = $day->format('Y-m-d');
-              if (!isset($project[$fdate]))
+              if (!isset($project['dates'][$fdate]))
               {
-                  $project[$fdate] = array('total' => 0, 'id' => null, 'edit_locked' => false);
+                  $project['dates'][$fdate] = array('total' => 0, 'id' => null, 'edit_locked' => false);
               }
-              $entry = $project[$fdate];
+              $entry = $project['dates'][$fdate];
               ?>
               <td class="date">
                   <?php if (!$entry['edit_locked']) { ?>
