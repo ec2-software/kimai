@@ -138,13 +138,10 @@ if ($this->weekSheetEntries)
             </table>
         </div>
     <?php
-}
-else
-{
+} else {
     echo $this->error();
 }
 ?>
-
 <script type="text/javascript">
     ws_user_annotations = <?php echo json_encode($this->user_annotations); ?>;
     ws_customer_annotations = <?php echo json_encode($this->customer_annotations) ?>;
@@ -155,14 +152,20 @@ else
     lists_update_annotations(parseInt($('#gui div.ki_weeksheets').attr('id').substring(7)),ws_user_annotations,ws_customer_annotations,ws_project_annotations,ws_activity_annotations);
     $('#display_total').html(ws_total);
 
-  <?php if ($this->latest_running_entry == null): ?>
+    <?php if ($this->latest_running_entry == null): ?>
     updateRecordStatus(false);
   <?php else: ?>
 
-    updateRecordStatus(<?php echo $this->latest_running_entry['timeEntryID']?>,<?php echo $this->latest_running_entry['start']?>,
-                             <?php echo $this->latest_running_entry['customerID']?>,'<?php echo $this->jsEscape($this->latest_running_entry['customerName'])?>',
-                             <?php echo $this->latest_running_entry['projectID']?> ,'<?php echo $this->jsEscape($this->latest_running_entry['projectName'])?>',
-                             <?php echo $this->latest_running_entry['activityID']?>,'<?php echo $this->jsEscape($this->latest_running_entry['activityName'])?>');
+    updateRecordStatus(
+        <?php echo $this->latest_running_entry['timeEntryID']?>,
+        <?php echo $this->latest_running_entry['start']?>,
+        <?php echo $this->latest_running_entry['customerID']?>,
+        '<?php echo $this->jsEscape($this->latest_running_entry['customerName'])?>',
+        <?php echo $this->latest_running_entry['projectID']?>,
+        '<?php echo $this->jsEscape($this->latest_running_entry['projectName'])?>',
+        <?php echo $this->latest_running_entry['activityID']?>,
+        '<?php echo $this->jsEscape($this->latest_running_entry['activityName'])?>'
+    );
   <?php endif; ?>
 
     function weeksheet_hide_column(name) {

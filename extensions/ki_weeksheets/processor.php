@@ -2,7 +2,7 @@
 /**
  * This file is part of
  * Kimai - Open Source Time Tracking // http://www.kimai.org
- * (c) 2006-2009 Kimai-Development-Team
+ * (c) Kimai-Development-Team since 2006
  *
  * Kimai is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 // insert KSPI
 $isCoreProcessor = 0;
 $dir_templates = "templates/";
-require("../../includes/kspi.php");
+require "../../includes/kspi.php";
 
 /**
  * Sets a value on $target if the $original does not have the same value
@@ -59,55 +59,53 @@ function fixDecimal($val)
 }
 
 function weeksheetAccessAllowed($entry, $action, &$errors) {
-  global $database, $kga;
+    global $database, $kga;
 
-  if (!isset($kga['user'])) {
-    $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-    return false;
-  }
+    if (!isset($kga['user'])) {
+        $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+        return false;
+    }
 
 
     if ($kga->isEditLimit() && time() - $entry['end'] > $kga->getEditLimit() && $entry['end'] != 0 ) {
-    $errors[''] = $kga['lang']['editLimitError'];
-    return;
-  }
+        $errors[''] = $kga['lang']['editLimitError'];
+        return;
+    }
+    $groups = $database->getGroupMemberships($entry['userID']);
 
+    if ($entry['userID'] == $kga['user']['userID']) {
+        $permissionName = 'ki_timesheets-ownEntry-' . $action;
+        if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
+            return true;
+        } else {
+            Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
+            $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+            return false;
+        }
+    }
 
-  $groups = $database->getGroupMemberships($entry['userID']);
+    $assignedOwnGroups = array_intersect($groups, $database->getGroupMemberships($kga['user']['userID']));
 
-  if ($entry['userID'] == $kga['user']['userID']) {
-    $permissionName = 'ki_timesheets-ownEntry-' . $action;
+    if (count($assignedOwnGroups) > 0) {
+        $permissionName = 'ki_timesheets-otherEntry-ownGroup-' . $action;
+        if ($database->checkMembershipPermission($kga['user']['userID'], $assignedOwnGroups, $permissionName)) {
+            return true;
+        } else {
+            Kimai_Logger::logfile("missing membership permission $permissionName of own group(s) " . implode(", ", $assignedOwnGroups) . " for user " . $kga['user']['name']);
+            $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+            return false;
+        }
+
+    }
+
+    $permissionName = 'ki_timesheets-otherEntry-otherGroup-' . $action;
     if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
-      return true;
+        return true;
     } else {
-      Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
-      $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-      return false;
+        Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
+        $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
+        return false;
     }
-  }
-
-  $assignedOwnGroups = array_intersect($groups, $database->getGroupMemberships($kga['user']['userID']));
-
-  if (count($assignedOwnGroups) > 0) {
-    $permissionName = 'ki_timesheets-otherEntry-ownGroup-' . $action;
-    if ($database->checkMembershipPermission($kga['user']['userID'], $assignedOwnGroups, $permissionName)) {
-      return true;
-    } else {
-      Kimai_Logger::logfile("missing membership permission $permissionName of own group(s) " . implode(", ", $assignedOwnGroups) . " for user " . $kga['user']['name']);
-      $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-      return false;
-    }
-
-  }
-
-  $permissionName = 'ki_timesheets-otherEntry-otherGroup-' . $action;
-  if ($database->global_role_allows($kga['user']['globalRoleID'], $permissionName)) {
-    return true;
-  } else {
-    Kimai_Logger::logfile("missing global permission $permissionName for user " . $kga['user']['name']);
-    $errors[''] = $kga['lang']['errorMessages']['permissionDenied'];
-    return false;
-  }
 
 }
 
@@ -135,29 +133,29 @@ switch ($axAction) {
 
         if (count($errors) == 0) {
 
-          $newTimeSheetEntryID = $database->timeEntry_create($weekSheetEntry);
+            $newTimeSheetEntryID = $database->timeEntry_create($weekSheetEntry);
 
-          $userData = array();
-          $userData['lastRecord'] = $newTimeSheetEntryID;
-          $userData['lastProject'] = $weekSheetEntry['projectID'];
-          $userData['lastActivity'] = $weekSheetEntry['activityID'];
-          $database->user_edit($kga['user']['userID'], $userData);
+            $userData = array();
+            $userData['lastRecord'] = $newTimeSheetEntryID;
+            $userData['lastProject'] = $weekSheetEntry['projectID'];
+            $userData['lastActivity'] = $weekSheetEntry['activityID'];
+            $database->user_edit($kga['user']['userID'], $userData);
 
 
-          $project = $database->project_get_data($weekSheetEntry['projectID']);
-          $customer = $database->customer_get_data($project['customerID']);
-          $activity = $database->activity_get_data($weekSheetEntry['activityID']);
+            $project = $database->project_get_data($weekSheetEntry['projectID']);
+            $customer = $database->customer_get_data($project['customerID']);
+            $activity = $database->activity_get_data($weekSheetEntry['activityID']);
 
-          $response['customer'] = $customer['customerID'];
-          $response['projectName'] = $project['name'];
-          $response['customerName'] = $customer['name'];
-          $response['activityName'] = $activity['name'];
-          $response['currentRecording'] = $newTimeSheetEntryID;
+            $response['customer'] = $customer['customerID'];
+            $response['projectName'] = $project['name'];
+            $response['customerName'] = $customer['name'];
+            $response['activityName'] = $activity['name'];
+            $response['currentRecording'] = $newTimeSheetEntryID;
         }
 
         header('Content-Type: application/json;charset=utf-8');
         echo json_encode($response);
-    break;
+        break;
 
     // ==================
     // = stop recording =
@@ -170,14 +168,14 @@ switch ($axAction) {
         weeksheetAccessAllowed($data, 'edit', $errors);
 
         if (count($errors) == 0) {
-          $database->stopRecorder($id);
+            $database->stopRecorder($id);
         }
 
         header('Content-Type: application/json;charset=utf-8');
         echo json_encode(
             array('errors' => $errors)
         );
-    break;
+        break;
 
     // =======================================
     // = set comment for a running recording =
@@ -191,11 +189,11 @@ switch ($axAction) {
 
         if (count($errors) == 0) {
             if (isset($_REQUEST['project'])) {
-            $database->timeEntry_edit_project($id, $_REQUEST['project']);
+                $database->timeEntry_edit_project($id, $_REQUEST['project']);
             }
 
             if (isset($_REQUEST['activity'])) {
-            $database->timeEntry_edit_activity($id, $_REQUEST['activity']);
+                $database->timeEntry_edit_activity($id, $_REQUEST['activity']);
             }
         }
 
@@ -203,7 +201,7 @@ switch ($axAction) {
         echo json_encode(
             array('errors' => $errors)
         );
-    break;
+        break;
 
     // =========================================
     // = Erase weeksheet entry via quickdeleteWeeksheet =
@@ -223,7 +221,7 @@ switch ($axAction) {
         echo json_encode(
             array('errors' => $errors)
         );
-    break;
+        break;
 
     // ==================================================
     // = Get the best rate for the project and activity =
@@ -232,21 +230,21 @@ switch ($axAction) {
         $data = array('errors' => array());
 
         if (!isset($kga['user'])) {
-          $data['errors'][] = $kga['lang']['editLimitError'];
+            $data['errors'][] = $kga['lang']['editLimitError'];
         }
 
         if (!$database->global_role_allows($kga['user']['globalRoleID'], 'ki_timesheets-showRates')) {
-          $data['errors'][] = $kga['lang']['editLimitError'];
+            $data['errors'][] = $kga['lang']['editLimitError'];
         }
 
         if (count($data['errors']) == 0) {
-          $data['hourlyRate'] = $database->get_best_fitting_rate($kga['user']['userID'], $_REQUEST['project_id'], $_REQUEST['activity_id']);
-          $data['fixedRate']  = $database->get_best_fitting_fixed_rate($_REQUEST['project_id'], $_REQUEST['activity_id']);
+            $data['hourlyRate'] = $database->get_best_fitting_rate($kga['user']['userID'], $_REQUEST['project_id'], $_REQUEST['activity_id']);
+            $data['fixedRate'] = $database->get_best_fitting_fixed_rate($_REQUEST['project_id'], $_REQUEST['activity_id']);
         }
 
         header('Content-Type: application/json;charset=utf-8');
         echo json_encode($data);
-    break;
+        break;
 
 
     // ==============================================================
@@ -272,10 +270,10 @@ switch ($axAction) {
                 $weekSheetEntry['budget'] = 0;
                 $weekSheetEntry['approved'] = 0;
                 $weekSheetEntry['rate'] = 0;
-          }
-          $data['activityBudgets'] = $database->get_activity_budget($_REQUEST['project_id'], $_REQUEST['activity_id']);
-          $data['activityUsed']    = $database->get_budget_used($_REQUEST['project_id'], $_REQUEST['activity_id']);
-          $data['weekSheetEntry']  = $weekSheetEntry;
+            }
+            $data['activityBudgets'] = $database->get_activity_budget($_REQUEST['project_id'], $_REQUEST['activity_id']);
+            $data['activityUsed'] = $database->get_budget_used($_REQUEST['project_id'], $_REQUEST['activity_id']);
+            $data['weekSheetEntry'] = $weekSheetEntry;
         }
 
         header('Content-Type: application/json;charset=utf-8');
@@ -383,7 +381,7 @@ switch ($axAction) {
             }
             echo '<option value="' . $activity['activityID'] . '">' . $activity['name'] . '</option>\n';
         }
-    break;
+        break;
 
     // =============================================
     // = Load weeksheet data from DB and return it =
@@ -610,9 +608,9 @@ switch ($axAction) {
         if (!is_numeric($data['projectID'])) {
             $errors['projectID'] = $kga['lang']['errorMessages']['noProjectSelected'];
         }
-      
+
         if (count($errors) > 0) {
-            echo json_encode(array('errors'=>$errors));
+            echo json_encode(array('errors' => $errors));
             return;
         }
 
@@ -623,7 +621,7 @@ switch ($axAction) {
         foreach ($_REQUEST['userID'] as $userID) {
               $data['userID'] = $userID;
           if (!weeksheetAccessAllowed($data, $action, $errors)) {
-            echo json_encode(array('errors'=>$errors));
+            echo json_encode(array('errors' => $errors));
             $database->transaction_rollback();
             break 2;
           }
