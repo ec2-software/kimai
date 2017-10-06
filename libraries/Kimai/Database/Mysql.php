@@ -2803,7 +2803,7 @@ class Kimai_Database_Mysql
         $projects = array();
         $dayTotals = array();
         
-        foreach ($timeSheetEntries as $rowIndex => $row)
+        foreach ($timeSheetEntries as $row)
         {
             $hash = "$row[customerID]-$row[projectID]-$row[activityID]-$row[description]";
             if (isset($projects[$hash]))
@@ -2822,9 +2822,12 @@ class Kimai_Database_Mysql
             $date = new DateTime();
             $date->setTimeStamp($row['start']);
             $date = $date->format('Y-m-d');
-            $pair = array('id' => $row['timeEntryID'] + 0, 'duration' => $row['duration']);
+            $pair = array(
+                'id' => (int)$row['timeEntryID'],
+                'duration' => $row['duration'],
+            );
 
-            if (isset($entry[$date]))
+            if (isset($entry['dates'][$date]))
             {
                 $entry['dates'][$date]['edit_locked'] = $entry[$date]['edit_locked'] && false;
                 $entry['dates'][$date]['total'] += $row['duration'];
